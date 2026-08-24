@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Private Wealth OS</title>
+
+<meta name="theme-color" content="#07111d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Private Wealth">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+
+<meta name="color-scheme" content="dark light">
+<style>
+:root{
+ --bg:#07111d;--bg2:#0b1725;--surface:#0e1c2b;--surface2:#122233;--surface3:#16283a;
+ --line:rgba(255,255,255,.085);--line2:rgba(255,255,255,.13);--text:#edf3f8;--muted:#8fa1b4;
+ --navy:#173f62;--cyan:#69a9d1;--gold:#c5a162;--green:#5fb596;--red:#d47777;--orange:#cf9c62;
+ --shadow:0 22px 60px rgba(0,0,0,.24);--r:18px;--r2:13px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:
+ radial-gradient(circle at 80% -10%,rgba(35,89,127,.24),transparent 32%),
+ radial-gradient(circle at 0% 35%,rgba(197,161,98,.06),transparent 28%),var(--bg);color:var(--text)}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;padding:24px 18px;border-right:1px solid var(--line);background:rgba(5,14,23,.82);backdrop-filter:blur(18px);z-index:5}
+.logo{display:flex;align-items:center;gap:11px;padding:4px 7px 23px}
+.logo-mark{width:34px;height:34px;border:1px solid rgba(197,161,98,.65);border-radius:10px;display:grid;place-items:center;color:var(--gold);font-weight:900}
+.logo .a{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:800}
+.logo .b{font-size:10px;color:var(--muted);margin-top:3px}
+.nav-title{font-size:9px;color:#64778b;letter-spacing:.18em;text-transform:uppercase;font-weight:800;margin:14px 10px 7px}
+.nav{display:grid;gap:4px}
+.nav button{border:0;background:transparent;color:#91a4b7;text-align:left;padding:10px 11px;border-radius:10px;font-size:12px;font-weight:700;display:flex;gap:9px;align-items:center}
+.nav button:hover{background:rgba(255,255,255,.045);color:#dce6ef}
+.nav button.active{background:linear-gradient(90deg,rgba(60,118,158,.22),rgba(60,118,158,.08));color:#fff;border:1px solid rgba(95,153,193,.16)}
+.nav .ico{width:17px;text-align:center;color:#6ea6cb}
+.sidebar-foot{position:absolute;bottom:22px;left:18px;right:18px;border-top:1px solid var(--line);padding-top:14px}
+.status{display:flex;align-items:center;gap:7px;font-size:10px;color:var(--muted)}
+.status i{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(95,181,150,.08)}
+.main{min-width:0;padding:0 30px 38px}
+.topbar{height:82px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(7,17,29,.84);backdrop-filter:blur(18px);z-index:4}
+.title .eyebrow{font-size:9px;color:#687d91;letter-spacing:.17em;text-transform:uppercase;font-weight:800}
+.title h1{font-size:21px;margin:5px 0 0;letter-spacing:-.025em}
+.top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.btn{border:1px solid var(--line2);background:rgba(255,255,255,.04);color:#d8e2eb;border-radius:9px;padding:8px 11px;font-size:11px;font-weight:750}
+.btn:hover{background:rgba(255,255,255,.075)}
+.btn.primary{background:#e7edf3;color:#0b1825;border-color:#e7edf3}
+.btn.gold{background:rgba(197,161,98,.11);border-color:rgba(197,161,98,.24);color:#dbc28f}
+.control{border:1px solid var(--line);background:#0b1825;color:#c9d6e2;border-radius:9px;padding:8px 10px;font-size:11px}
+.page{display:none;padding-top:22px}.page.active{display:block}
+.hero{display:grid;grid-template-columns:1.8fr .9fr;gap:12px;margin-bottom:12px}
+.hero-main{min-height:225px;background:
+ linear-gradient(130deg,rgba(24,62,91,.68),rgba(12,29,44,.78)),
+ radial-gradient(circle at 90% 30%,rgba(197,161,98,.16),transparent 30%);border:1px solid var(--line2);border-radius:22px;padding:24px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.hero-main:after{content:"";position:absolute;width:350px;height:350px;border:1px solid rgba(255,255,255,.05);border-radius:50%;right:-100px;top:-180px}
+.hero-kicker{font-size:10px;color:#93acc0;text-transform:uppercase;letter-spacing:.14em;font-weight:800}
+.hero-value{font-size:42px;letter-spacing:-.05em;font-weight:760;margin:15px 0 8px}
+.hero-sub{font-size:12px;color:#9db0c1;max-width:680px;line-height:1.55}
+.hero-stats{display:flex;gap:28px;flex-wrap:wrap;margin-top:23px}
+.hero-stat .l{font-size:9px;color:#7590a6;text-transform:uppercase;letter-spacing:.09em}
+.hero-stat .v{font-size:14px;font-weight:800;margin-top:4px}
+.hero-side{display:grid;grid-template-rows:1fr 1fr;gap:12px}
+.mini-feature{border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,#0f1f2f,#0b1825);padding:17px}
+.mini-feature .l{font-size:9px;color:#71869a;text-transform:uppercase;letter-spacing:.1em;font-weight:800}
+.mini-feature .v{font-size:24px;font-weight:800;letter-spacing:-.03em;margin:9px 0 6px}
+.mini-feature .s{font-size:10px;color:#90a2b4}
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.kpi{border:1px solid var(--line);border-radius:15px;background:linear-gradient(145deg,rgba(17,34,51,.88),rgba(11,24,37,.92));padding:15px;min-height:108px}
+.kpi .label{font-size:9px;color:#73879b;text-transform:uppercase;letter-spacing:.09em;font-weight:800}
+.kpi .value{font-size:20px;font-weight:780;letter-spacing:-.03em;margin:11px 0 7px}
+.kpi .delta{font-size:10px;color:#8498ab}.up{color:var(--green)!important}.down{color:var(--red)!important}
+.grid2{display:grid;grid-template-columns:1.55fr 1fr;gap:12px;margin-bottom:12px}
+.grid2.equal{grid-template-columns:1fr 1fr}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.card{border:1px solid var(--line);background:linear-gradient(155deg,rgba(17,34,51,.91),rgba(10,23,36,.94));border-radius:var(--r);box-shadow:0 12px 38px rgba(0,0,0,.12);min-width:0}
+.panel{padding:17px}
+.panel-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:13px}
+.panel h2{font-size:13px;margin:0;letter-spacing:-.01em}
+.meta{font-size:9.5px;color:#74899c;margin-top:4px;line-height:1.45}
+.badge{display:inline-flex;padding:4px 7px;border-radius:999px;font-size:9px;font-weight:800}
+.badge.gold{background:rgba(197,161,98,.1);color:#d0b27a;border:1px solid rgba(197,161,98,.18)}
+.badge.green{background:rgba(95,181,150,.08);color:#7fc8ad;border:1px solid rgba(95,181,150,.14)}
+.badge.blue{background:rgba(105,169,209,.08);color:#86bee1;border:1px solid rgba(105,169,209,.14)}
+canvas{display:block;width:100%;height:280px}.short canvas{height:220px}.tall canvas{height:330px}
+.legend{display:flex;gap:13px;flex-wrap:wrap;font-size:9.5px;color:#7f93a6}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:5px}
+.metric{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.055)}
+.metric:last-child{border-bottom:0}.metric span{font-size:10.5px;color:#8da0b2}.metric b{font-size:11px}
+.metric small{display:block;color:#5f7488;font-size:8.5px;margin-top:3px}
+.progress{height:5px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden;margin-top:6px}.progress i{display:block;height:100%;background:linear-gradient(90deg,#2c668f,#6fa9cf);border-radius:999px}
+.insights{display:grid;gap:9px}
+.insight{padding:10px 11px;border:1px solid var(--line);background:rgba(255,255,255,.024);border-radius:11px;font-size:10.5px;color:#a9bac9;line-height:1.55}
+.insight strong{color:#edf3f8}.insight.good{border-left:2px solid var(--green)}.insight.warn{border-left:2px solid var(--gold)}.insight.risk{border-left:2px solid var(--red)}
+.stat-strip{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line);border-radius:14px;overflow:hidden;background:rgba(255,255,255,.018);margin-bottom:12px}
+.stat-strip>div{padding:12px 14px;border-right:1px solid var(--line)}.stat-strip>div:last-child{border:0}
+.stat-strip .l{font-size:8.5px;color:#6e8498;text-transform:uppercase;letter-spacing:.08em}.stat-strip .v{font-size:16px;font-weight:800;margin-top:6px}
+.bes-hero{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-bottom:12px}
+.bes-score{padding:24px;background:linear-gradient(135deg,rgba(41,76,91,.72),rgba(12,30,42,.88));border:1px solid rgba(95,181,150,.13);border-radius:20px;position:relative;overflow:hidden}
+.bes-score .v{font-size:36px;font-weight:800;letter-spacing:-.04em;margin:12px 0}
+.bes-score .tag{font-size:9px;color:#8db7a8;text-transform:uppercase;letter-spacing:.12em;font-weight:800}
+.bes-score .sub{font-size:10.5px;color:#8ca3ae;line-height:1.55}
+.bes-side{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bes-mini{padding:16px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.025)}
+.bes-mini .l{font-size:8.5px;color:#708598;text-transform:uppercase}.bes-mini .v{font-size:18px;font-weight:800;margin-top:8px}.bes-mini .s{font-size:9px;color:#6f8396;margin-top:5px}
+.waterfall{display:grid;gap:7px}
+.wf-row{display:grid;grid-template-columns:115px 1fr 85px;align-items:center;gap:10px;font-size:9.5px}
+.wf-bar{height:8px;background:rgba(255,255,255,.05);border-radius:99px;overflow:hidden}.wf-bar i{display:block;height:100%;border-radius:99px;background:#547f9e}
+.table-wrap{overflow:auto;max-height:600px;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:1350px;font-size:9.5px}
+th{position:sticky;top:0;background:#112234;color:#7f93a6;padding:10px 9px;text-align:right;white-space:nowrap;z-index:2}
+td{padding:9px;border-bottom:1px solid rgba(255,255,255,.045);text-align:right;white-space:nowrap;color:#aebdcc}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:#0e1d2c;z-index:1}
+tr:hover td{background:rgba(255,255,255,.018)} tr.bad td{background:rgba(175,75,75,.045)}
+.ai-card{background:linear-gradient(135deg,#0c1f31,#173a55);border-color:rgba(105,169,209,.13)}
+.ai-output{min-height:150px;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.13);border-radius:11px;padding:12px;font-size:10.5px;color:#bac9d6;line-height:1.6;white-space:pre-wrap}
+.note{font-size:9px;color:#677c90;line-height:1.55}
+.modal-bg{position:fixed;inset:0;background:rgba(2,8,14,.72);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;z-index:20}.modal-bg.show{display:flex}
+.modal{width:min(980px,100%);max-height:93vh;overflow:auto;background:#0d1b29;border:1px solid var(--line2);border-radius:19px;box-shadow:0 30px 90px rgba(0,0,0,.5)}
+.modal-head,.modal-foot{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}.modal-foot{border-top:1px solid var(--line);border-bottom:0;justify-content:flex-end;gap:8px}
+.modal-head h3{margin:0;font-size:14px}.modal-body{padding:18px}
+.form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}.sep{grid-column:1/-1;margin-top:4px;padding-top:11px;border-top:1px solid var(--line);font-size:9px;color:#6f879b;text-transform:uppercase;letter-spacing:.12em;font-weight:800}
+.field label{display:block;font-size:8.5px;color:#6f8497;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;font-weight:800}
+.field input,.field select{width:100%;background:#0a1622;border:1px solid var(--line);color:#d9e4ed;border-radius:9px;padding:9px}
+.footer{font-size:8.5px;color:#536a7f;line-height:1.55;padding:12px 2px 0}
+.mobile-nav{display:none}
+@media(max-width:1180px){.app{grid-template-columns:74px 1fr}.sidebar{padding:20px 10px}.logo .txt,.nav button span:not(.ico),.nav-title,.sidebar-foot{display:none}.logo{justify-content:center}.nav button{justify-content:center}.kpis{grid-template-columns:repeat(3,1fr)}.grid3{grid-template-columns:1fr 1fr}.grid4{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){.app{display:block}.sidebar{display:none}.main{padding:0 12px 80px}.topbar{height:auto;min-height:78px;padding:12px 0;align-items:flex-start}.top-actions{gap:5px}.top-actions .control{max-width:135px}.hero,.bes-hero,.grid2,.grid2.equal,.grid3{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}.stat-strip{grid-template-columns:1fr 1fr}.stat-strip>div{border-bottom:1px solid var(--line)}.form-grid{grid-template-columns:1fr 1fr}.mobile-nav{display:grid;grid-template-columns:repeat(7,1fr);position:fixed;left:8px;right:8px;bottom:8px;background:rgba(9,21,33,.94);backdrop-filter:blur(15px);border:1px solid var(--line);border-radius:13px;padding:5px;z-index:10}.mobile-nav button{border:0;background:transparent;color:#7990a4;padding:8px 2px;font-size:7.5px;border-radius:8px}.mobile-nav button.active{background:rgba(105,169,209,.1);color:#d8e7f2}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="logo"><div class="logo-mark">W</div><div class="txt"><div class="a">Private Wealth</div><div class="b">Personal Capital Office</div></div></div>
+  <div class="nav-title">Dashboard</div>
+  <div class="nav">
+    <button class="active" data-page="executive"><span class="ico">◈</span><span>Executive Overview</span></button>
+    <button data-page="wealth"><span class="ico">↗</span><span>Servet Analizi</span></button>
+    <button data-page="bes"><span class="ico">◎</span><span>BES Intelligence</span></button>
+    <button data-page="credit"><span class="ico">▤</span><span>Kredi & Kartlar</span></button>
+    <button data-page="cfo"><span class="ico">◇</span><span>Personal CFO</span></button>
+    <button data-page="debt"><span class="ico">◌</span><span>Likidite & Borç</span></button>
+    <button data-page="data"><span class="ico">≡</span><span>Veri & AI</span></button>
+  </div>
+  <div class="nav-title">Actions</div>
+  <div class="nav">
+    <button id="sideAdd"><span class="ico">＋</span><span>Yeni Tarih</span></button>
+    <button id="sideExport"><span class="ico">⇩</span><span>Yedek Al</span></button>
+  </div>
+  <div class="sidebar-foot"><div class="status"><i></i> Yerel veri kasası aktif</div></div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div class="title"><div class="eyebrow">Personal capital intelligence</div><h1 id="pageTitle">Executive Overview</h1></div>
+    <div class="top-actions">
+      <select id="range" class="control"><option value="all">Tüm dönem</option><option value="24m">24 ay</option><option value="12m" selected>12 ay</option><option value="6m">6 ay</option></select>
+      <select id="goldMode" class="control"><option value="buy">Altın alış</option><option value="sell">Altın satış</option></select>
+      <button class="btn gold" id="refreshGold">Altın yenile</button>
+      <button class="btn" id="installPwa" style="display:none">Uygulamayı yükle</button>
+      <button class="btn" id="settingsBtn">AI</button>
+      <button class="btn primary" id="addBtn">+ Yeni kayıt</button>
+    </div>
+  </header>
+
+  <section class="page active" id="executive">
+    <div class="stat-strip" id="dataStatusStrip"></div>
+    <div class="hero">
+      <div class="hero-main">
+        <div class="hero-kicker">Adjusted net worth / tarihsel altın dahil</div>
+        <div class="hero-value" id="heroNet">—</div>
+        <div class="hero-sub" id="heroNarrative">—</div>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="l">12A değişim</div><div class="v" id="hero12m">—</div></div>
+          <div class="hero-stat"><div class="l">Borç / varlık</div><div class="v" id="heroDebtRatio">—</div></div>
+          <div class="hero-stat"><div class="l">Finansal varlıklar</div><div class="v" id="heroFinancial">—</div></div>
+          <div class="hero-stat"><div class="l">Son kayıt</div><div class="v" id="heroDate">—</div></div>
+        </div>
+      </div>
+      <div class="hero-side">
+        <div class="mini-feature"><div class="l">BES toplamı</div><div class="v" id="heroBes">—</div><div class="s" id="heroBesSub">—</div></div>
+        <div class="mini-feature"><div class="l">Net borç yükü</div><div class="v" id="heroDebt">—</div><div class="s" id="heroDebtSub">—</div></div>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="label">Toplam varlık</div><div class="value" id="kAsset">—</div><div class="delta" id="dAsset">—</div></div>
+      <div class="kpi"><div class="label">Toplam borç</div><div class="value" id="kDebt">—</div><div class="delta" id="dDebt">—</div></div>
+      <div class="kpi"><div class="label">Nakit likidite</div><div class="value" id="kCash">—</div><div class="delta" id="dCash">—</div></div>
+      <div class="kpi"><div class="label">Fiziksel altın</div><div class="value" id="kGold">—</div><div class="delta" id="dGold">—</div></div>
+      <div class="kpi"><div class="label">BES</div><div class="value" id="kBes">—</div><div class="delta" id="dBes">—</div></div>
+      <div class="kpi"><div class="label">Gayrimenkul</div><div class="value" id="kHouse">—</div><div class="delta" id="dHouse">—</div></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card panel tall"><div class="panel-head"><div><h2>Net Servet — Yönetim Eğrisi</h2><div class="meta">Tarihsel altınla düzeltilmiş net servet ve eski kayıt serisi</div></div><div class="legend"><span style="color:#78add0"><i class="dot"></i>Düzeltilmiş</span><span style="color:#617486"><i class="dot"></i>Eski seri</span></div></div><canvas id="netChart"></canvas></div>
+      <div class="card panel"><div class="panel-head"><div><h2>Varlık Dağılımı</h2><div class="meta">Son kayıt, ekonomik varlık sınıfları</div></div><span class="badge gold">Allocation</span></div><canvas id="allocChart"></canvas><div id="allocLegend"></div></div>
+    </div>
+
+    <div class="grid3">
+      <div class="card panel short"><div class="panel-head"><div><h2>Varlık vs Borç</h2><div class="meta">Bilanço ölçeği</div></div></div><canvas id="balanceChart"></canvas></div>
+      <div class="card panel"><div class="panel-head"><div><h2>Finansal Sağlık</h2><div class="meta">Kaldıraç, likidite ve konsantrasyon</div></div></div><div id="health"></div></div>
+      <div class="card panel"><div class="panel-head"><div><h2>Executive Notes</h2><div class="meta">Kurala dayalı karar özeti</div></div></div><div class="insights" id="notes"></div></div>
+    </div>
+  </section>
+
+  <section class="page" id="wealth">
+    <div class="stat-strip" id="wealthStrip"></div>
+    <div class="grid2">
+      <div class="card panel tall"><div class="panel-head"><div><h2>Toplam Servet Motorları</h2><div class="meta">Nakit, BES, altın ve ev değerinin zaman içindeki gelişimi</div></div></div><canvas id="driversChart"></canvas></div>
+      <div class="card panel tall"><div class="panel-head"><div><h2>Net Servet Momentum</h2><div class="meta">Kayıttan kayda mutlak değişim</div></div></div><canvas id="momentumChart"></canvas></div>
+    </div>
+    <div class="grid3">
+      <div class="card panel"><div class="panel-head"><div><h2>Finansal Varlık / Ev Dengesi</h2><div class="meta">Servetin taşınabilir kısmı</div></div></div><div id="financialMetrics"></div></div>
+      <div class="card panel"><div class="panel-head"><div><h2>Dönemsel Performans</h2><div class="meta">Seçili zaman aralığı</div></div></div><div id="period"></div></div>
+      <div class="card panel"><div class="panel-head"><div><h2>Hassasiyet Testi</h2><div class="meta">Fiyat tahmini değil; bilanço stres testi</div></div></div><div id="scenario"></div></div>
+    </div>
+  </section>
+
+  <section class="page" id="bes">
+    <div class="bes-hero">
+      <div class="bes-score">
+        <div class="tag">Retirement capital / BES intelligence</div>
+        <div class="v" id="besTotal">—</div>
+        <div class="sub" id="besNarrative">—</div>
+      </div>
+      <div class="bes-side">
+        <div class="bes-mini"><div class="l">12A bakiye değişimi</div><div class="v" id="bes12m">—</div><div class="s">Katkı + fon hareketi birlikte</div></div>
+        <div class="bes-mini"><div class="l">Net servet içindeki pay</div><div class="v" id="besNetShare">—</div><div class="s">Toplam servet kompozisyonu</div></div>
+        <div class="bes-mini"><div class="l">Finansal varlık payı</div><div class="v" id="besFinShare">—</div><div class="s">Ev hariç yatırım havuzu</div></div>
+        <div class="bes-mini"><div class="l">Zirve BES bakiyesi</div><div class="v" id="besPeak">—</div><div class="s" id="besPeakDate">—</div></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card panel tall"><div class="panel-head"><div><h2>AGESA / Allianz / Toplam BES</h2><div class="meta">Her sağlayıcının bakiye serisi ve toplam emeklilik sermayesi</div></div><div class="legend"><span>AGESA</span><span>Allianz</span><span>Toplam</span></div></div><canvas id="besMainChart"></canvas></div>
+      <div class="card panel tall"><div class="panel-head"><div><h2>BES Bakiye Değişimi</h2><div class="meta">Kayıttan kayda TL farkı — yatırım getirisi olarak yorumlanmamalıdır</div></div></div><canvas id="besDeltaChart"></canvas></div>
+    </div>
+
+    <div class="grid3">
+      <div class="card panel short"><div class="panel-head"><div><h2>BES / Net Servet Oranı</h2><div class="meta">Emeklilik sermayesinin servet içindeki ağırlığı</div></div></div><canvas id="besShareChart"></canvas></div>
+      <div class="card panel short"><div class="panel-head"><div><h2>BES / Borç Karşılaştırması</h2><div class="meta">Uzun vadeli birikim ile yükümlülük ölçeği</div></div></div><canvas id="besDebtChart"></canvas></div>
+      <div class="card panel"><div class="panel-head"><div><h2>BES Yönetim Metrikleri</h2><div class="meta">Bakiye trendi ve konsantrasyon</div></div><span class="badge green">Long-term</span></div><div id="besMetrics"></div></div>
+    </div>
+
+    <div class="card panel"><div class="panel-head"><div><h2>Yıllık BES Snapshot</h2><div class="meta">Her yılın son gözlemindeki BES bakiyesi ve yıllık değişim</div></div></div><div id="besYearly" class="waterfall"></div></div>
+  </section>
+
+
+
+  <section class="page" id="cfo">
+    <div class="hero">
+      <div class="hero-main">
+        <div class="hero-kicker">Personal CFO / monthly capital allocation</div>
+        <div class="hero-value" id="cfoSavings">—</div>
+        <div class="hero-sub" id="cfoNarrative">Aylık gelir, yaşam gideri, kredi/kart ödemeleri, BES katkısı ve yatırım transferlerini ayrı izleyerek servet değişiminin kaynağını açıklar.</div>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="l">Tasarruf oranı</div><div class="v" id="cfoSaveRate">—</div></div>
+          <div class="hero-stat"><div class="l">Borç servisi</div><div class="v" id="cfoDebtService">—</div></div>
+          <div class="hero-stat"><div class="l">Yatırıma ayrılan</div><div class="v" id="cfoInvest">—</div></div>
+          <div class="hero-stat"><div class="l">Kayıtlı ay</div><div class="v" id="cfoMonths">—</div></div>
+        </div>
+      </div>
+      <div class="hero-side">
+        <div class="mini-feature"><div class="l">Son ay gelir</div><div class="v" id="cfoIncome">—</div><div class="s">Maaş + ek gelir</div></div>
+        <div class="mini-feature"><div class="l">Son ay yaşam gideri</div><div class="v" id="cfoExpense">—</div><div class="s">Borç ödemeleri hariç</div></div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin:-2px 0 12px"><button class="btn primary" id="addCashflow">+ Aylık CFO kaydı</button></div>
+    <div class="grid2">
+      <div class="card panel tall"><div class="panel-head"><div><h2>Aylık Gelir / Gider / Tasarruf</h2><div class="meta">Operasyonel kişisel nakit akışı</div></div></div><canvas id="cfoFlowChart"></canvas></div>
+      <div class="card panel tall"><div class="panel-head"><div><h2>Sermaye Tahsisi</h2><div class="meta">BES, yatırım ve borç ödemelerine ayrılan aylık kaynak</div></div></div><canvas id="cfoAllocChart"></canvas></div>
+    </div>
+    <div class="grid3">
+      <div class="card panel"><div class="panel-head"><div><h2>CFO KPI'ları</h2><div class="meta">Son kayıt ve hareketli ortalamalar</div></div></div><div id="cfoMetrics"></div></div>
+      <div class="card panel"><div class="panel-head"><div><h2>Servet Köprüsü</h2><div class="meta">Tasarruf ile net servet hareketini karşılaştırır</div></div></div><div id="cfoBridge"></div></div>
+      <div class="card panel"><div class="panel-head"><div><h2>CFO Önerileri</h2><div class="meta">Kurala dayalı kişisel finans yönetimi</div></div></div><div class="insights" id="cfoNotes"></div></div>
+    </div>
+    <div class="card panel"><div class="panel-head"><div><h2>Aylık Nakit Akışı Defteri</h2><div class="meta">Gelir ve giderleri ayrı tutmak yatırım performansını doğru yorumlamayı sağlar.</div></div></div><div class="table-wrap"><table style="min-width:1050px"><thead><tr><th>Ay</th><th>Maaş</th><th>Ek gelir</th><th>Yaşam gideri</th><th>Kredi ödeme</th><th>Kart ödeme</th><th>BES katkı</th><th>Yatırım</th><th>Net tasarruf</th><th>İşlem</th></tr></thead><tbody id="cashflowBody"></tbody></table></div></div>
+  </section>
+
+  <section class="page" id="credit">
+    <div class="stat-strip" id="creditStrip"></div>
+
+    <div class="grid2">
+      <div class="card panel tall">
+        <div class="panel-head">
+          <div>
+            <h2>Kredi & Kart Borçları — Ana Trend</h2>
+            <div class="meta">Kredi bakiyesi, toplam kredi kartı borcu ve toplam finansal borç</div>
+          </div>
+          <span class="badge gold">Liability book</span>
+        </div>
+        <canvas id="creditMainChart"></canvas>
+      </div>
+
+      <div class="card panel tall">
+        <div class="panel-head">
+          <div>
+            <h2>Kredi Kartı Bazında Borç</h2>
+            <div class="meta">QNB, İş Bankası ve Akbank kredi kartlarının zaman içindeki hareketi</div>
+          </div>
+        </div>
+        <canvas id="cardsTrendChart"></canvas>
+      </div>
+    </div>
+
+    <div class="grid3">
+      <div class="card panel short">
+        <div class="panel-head">
+          <div>
+            <h2>Son Borç Dağılımı</h2>
+            <div class="meta">Kredi ve kart bazında yükümlülük kompozisyonu</div>
+          </div>
+        </div>
+        <canvas id="creditMixChart"></canvas>
+      </div>
+
+      <div class="card panel short">
+        <div class="panel-head">
+          <div>
+            <h2>Borç Değişimi</h2>
+            <div class="meta">Kayıttan kayda toplam borç değişimi</div>
+          </div>
+        </div>
+        <canvas id="creditDeltaChart"></canvas>
+      </div>
+
+      <div class="card panel">
+        <div class="panel-head">
+          <div>
+            <h2>Borç Yönetim Metrikleri</h2>
+            <div class="meta">Borç yapısı, ağırlıklar ve azaltım performansı</div>
+          </div>
+          <span class="badge blue">Debt analytics</span>
+        </div>
+        <div id="creditMetrics"></div>
+      </div>
+    </div>
+
+    <div class="grid2 equal">
+      <div class="card panel">
+        <div class="panel-head">
+          <div>
+            <h2>Kart Borcu Dağılımı</h2>
+            <div class="meta">Sadece kredi kartları içinde banka bazlı konsantrasyon</div>
+          </div>
+        </div>
+        <canvas id="cardsMixChart"></canvas>
+      </div>
+
+      <div class="card panel">
+        <div class="panel-head">
+          <div>
+            <h2>Kredi vs Kart Dengesi</h2>
+            <div class="meta">Borç stokunun kredi ve revolving kart borcu tarafındaki ağırlığı</div>
+          </div>
+        </div>
+        <div id="creditBalanceMetrics"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="debt">
+    <div class="stat-strip" id="debtStrip"></div>
+    <div class="grid2">
+      <div class="card panel tall"><div class="panel-head"><div><h2>Borç Stoğu</h2><div class="meta">Kredi + kredi kartları</div></div></div><canvas id="debtChart"></canvas></div>
+      <div class="card panel tall"><div class="panel-head"><div><h2>Nakit Likidite / Borç</h2><div class="meta">Kısa vadeli tampon görünümü</div></div></div><canvas id="liquidityDebtChart"></canvas></div>
+    </div>
+    <div class="grid3">
+      <div class="card panel"><div class="panel-head"><div><h2>Son Borç Kompozisyonu</h2><div class="meta">Kredi ve kart dağılımı</div></div></div><canvas id="debtAllocChart"></canvas></div>
+      <div class="card panel"><div class="panel-head"><div><h2>Borç Azalışı</h2><div class="meta">İlk gözlemden bugüne</div></div></div><div id="debtProgress"></div></div>
+      <div class="card panel"><div class="panel-head"><div><h2>Likidite Kalitesi</h2><div class="meta">Nakit, BES ve altın tamponları</div></div></div><div id="liquidityMetrics"></div></div>
+    </div>
+  </section>
+
+  <section class="page" id="data">
+    <div class="grid2 equal">
+      <div class="card panel ai-card"><div class="panel-head"><div><h2>AI Finansal Analist</h2><div class="meta">Gemini API — yalnızca özet metrikleri gönderir</div></div><span class="badge blue">Optional</span></div><div class="ai-output" id="aiOutput">AI bağlantısı olmadan tüm hesaplamalar ve grafikler çalışır. API anahtarı eklersen dönemsel bilanço yorumunu yapay zekâ ile üretebilirsin.</div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn primary" id="runAi">AI analizi üret</button><button class="btn" id="copySummary">Özeti kopyala</button></div></div>
+      <div class="card panel"><div class="panel-head"><div><h2>Data Integrity</h2><div class="meta">Eski toplamlar ve yeniden hesaplanan bilanço formülleri</div></div></div><div id="qa"></div></div>
+    </div>
+    <div class="card panel"><div class="panel-head"><div><h2>Master Ledger</h2><div class="meta">Satıra çift tıkla veya Düzenle. Yeni kayıtlar tarayıcıda saklanır.</div></div><div><button class="btn" id="exportCsv">CSV</button> <button class="btn" id="exportJson">JSON Yedek</button> <button class="btn" id="importJson">JSON İçe Aktar</button> <input type="file" id="importFile" accept=".json,application/json" style="display:none"> <button class="btn primary" id="addBtn2">+ Kayıt</button></div></div><div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Nakit</th><th>BES</th><th>Ev</th><th>Altın</th><th>Düzeltilmiş varlık</th><th>Kredi</th><th>Kartlar</th><th>Borç</th><th>Net</th><th>QA</th><th>İşlem</th></tr></thead><tbody id="tbody"></tbody></table></div></div>
+  </section>
+
+  <div class="footer">Tarihsel altın değerlemesi, eski ALTIN TL hücresini tarih bazlı altın değeriyle ikame eder; çift sayım yapılmaz. BES grafiklerindeki artış/azalışlar bakiye değişimidir; katkı payı ile fon getirisi ayrı veri olmadığı için yatırım getirisi olarak etiketlenmez. Tarihsel 42 kayıt HTML içine gömülüdür ve localStorage silinse dahi yeniden yüklenir. Yeni/düzenlenen kayıtlar cihazda saklanır; JSON yedek ile PC–iPhone arasında taşınabilir. Bu ekran kişisel finansal izleme içindir, yatırım danışmanlığı değildir.</div>
+</main>
+</div>
+
+<div class="mobile-nav">
+  <button class="active" data-page="executive">Özet</button><button data-page="wealth">Servet</button><button data-page="bes">BES</button><button data-page="cfo">CFO</button><button data-page="credit">Kredi</button><button data-page="debt">Likidite</button><button data-page="data">Veri</button>
+</div>
+
+<div class="modal-bg" id="recordModal"><div class="modal">
+  <div class="modal-head"><h3 id="recordTitle">Yeni kayıt</h3><button class="btn" data-close="recordModal">Kapat</button></div>
+  <div class="modal-body"><div class="form-grid">
+    <div class="field"><label>Tarih</label><input id="f_date" type="date"></div>
+    <div class="field"><label>Dolar portföy TL</label><input id="f_dollar" type="number" step=".01"></div>
+    <div class="field"><label>Euro portföy TL</label><input id="f_euro" type="number" step=".01"></div>
+    <div class="field"><label>Binance</label><input id="f_binance" type="number" step=".01"></div>
+    <div class="sep">Bankalar ve gayrimenkul</div>
+    <div class="field"><label>QNB</label><input id="f_qnb" type="number" step=".01"></div><div class="field"><label>Akbank</label><input id="f_akbank" type="number" step=".01"></div><div class="field"><label>İşbank</label><input id="f_isbank" type="number" step=".01"></div><div class="field"><label>Ev değeri</label><input id="f_house" type="number" step=".01"></div>
+    <div class="sep">BES ve altın</div>
+    <div class="field"><label>AGESA BES</label><input id="f_agesa" type="number" step=".01"></div><div class="field"><label>Allianz BES</label><input id="f_allianz" type="number" step=".01"></div><div class="field"><label>Çeyrek altın adet</label><input id="f_quarter" type="number" step="1"></div><div class="field"><label>Gram altın adet</label><input id="f_gram" type="number" step=".01"></div>
+    <div class="sep">Borçlar</div>
+    <div class="field"><label>QNB KK</label><input id="f_qnbkk" type="number" step=".01"></div><div class="field"><label>İşbank KK</label><input id="f_isbankkk" type="number" step=".01"></div><div class="field"><label>Akbank KK</label><input id="f_akbankkk" type="number" step=".01"></div><div class="field"><label>Kredi</label><input id="f_kredi" type="number" step=".01"></div>
+    <div class="sep">Altın fiyatı — otomatik bulunamazsa manuel</div>
+    <div class="field"><label>Çeyrek alış</label><input id="f_qbuy" type="number" step=".001"></div><div class="field"><label>Çeyrek satış</label><input id="f_qsell" type="number" step=".001"></div><div class="field"><label>Gram alış</label><input id="f_gbuy" type="number" step=".001"></div><div class="field"><label>Gram satış</label><input id="f_gsell" type="number" step=".001"></div>
+    <div class="sep">Not</div><div class="field" style="grid-column:1/-1"><input id="f_note" placeholder="Örn. maaş sonrası, kredi ödeme dönemi, ev değerleme güncellemesi"></div>
+  </div><div class="note" id="goldFetchNote" style="margin-top:12px">Altın olan yeni kayıtta tarihsel fiyat otomatik bulunmaya çalışılır.</div></div>
+  <div class="modal-foot"><button class="btn" data-close="recordModal">Vazgeç</button><button class="btn primary" id="saveRecord">Kaydet ve yeniden hesapla</button></div>
+</div></div>
+
+
+<div class="modal-bg" id="cashModal"><div class="modal" style="width:min(850px,100%)">
+ <div class="modal-head"><h3 id="cashTitle">Aylık CFO kaydı</h3><button class="btn" data-close="cashModal">Kapat</button></div>
+ <div class="modal-body"><div class="form-grid">
+  <div class="field"><label>Ay</label><input id="cf_month" type="month"></div>
+  <div class="field"><label>Net maaş</label><input id="cf_salary" type="number" step=".01"></div>
+  <div class="field"><label>Ek gelir</label><input id="cf_extra" type="number" step=".01"></div>
+  <div class="field"><label>Yaşam giderleri</label><input id="cf_living" type="number" step=".01"></div>
+  <div class="sep">Borç servisi ve sermaye tahsisi</div>
+  <div class="field"><label>Kredi ödemesi</label><input id="cf_loan" type="number" step=".01"></div>
+  <div class="field"><label>Kredi kartı ödemesi</label><input id="cf_card" type="number" step=".01"></div>
+  <div class="field"><label>BES katkısı</label><input id="cf_bes" type="number" step=".01"></div>
+  <div class="field"><label>Diğer yatırım / birikim</label><input id="cf_invest" type="number" step=".01"></div>
+  <div class="field" style="grid-column:1/-1"><label>Not</label><input id="cf_note" placeholder="Örn. düğün harcaması, prim, ekstra kredi kapama, altın alımı"></div>
+ </div><div class="note" style="margin-top:12px">Net tasarruf = maaş + ek gelir − yaşam giderleri − kredi ödemesi − kart ödemesi − BES katkısı − diğer yatırım. BES ve yatırım kalemleri nakit çıkışı olsa da servet içinde başka varlık sınıfına dönüşür; CFO ekranı bunu ayrıca gösterir.</div></div>
+ <div class="modal-foot"><button class="btn" data-close="cashModal">Vazgeç</button><button class="btn primary" id="saveCash">Kaydet</button></div>
+</div></div>
+
+<div class="modal-bg" id="settingsModal"><div class="modal" style="width:min(620px,100%)">
+  <div class="modal-head"><h3>AI Ayarları</h3><button class="btn" data-close="settingsModal">Kapat</button></div>
+  <div class="modal-body"><div class="form-grid" style="grid-template-columns:1fr"><div class="field"><label>Gemini API Key</label><input type="password" id="apiKey"></div><div class="field"><label>Model</label><select id="apiModel"><option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite</option><option value="gemini-3.7-flash">gemini-3.7-flash</option></select></div><div class="note">Anahtar yalnızca bu tarayıcının localStorage alanında tutulur.</div></div></div>
+  <div class="modal-foot"><button class="btn primary" id="saveSettings">Kaydet</button></div>
+</div></div>
+
+<script>
+const SEED_DATA=[{"date":"2024-03-05","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":45139,"akbank":33135,"isbank":25795,"agesa":0,"allianz":85531,"qnbkk":-3,"isbankkk":0,"akbankkk":37336,"kredi":43928,"house":0,"givenLiquidity":104069,"givenAsset":189600,"givenDebt":81261,"givenNet":108339,"legacyGold":0},{"date":"2024-03-14","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":54562,"qnb":0,"akbank":31443,"isbank":15891,"agesa":0,"allianz":83883,"qnbkk":-200,"isbankkk":0,"akbankkk":39352,"kredi":43928,"house":0,"givenLiquidity":101896,"givenAsset":185779,"givenDebt":83080,"givenNet":102699,"legacyGold":0},{"date":"2024-03-24","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":12741,"qnb":75518,"akbank":2000,"isbank":35896,"agesa":0,"allianz":83768,"qnbkk":-3,"isbankkk":0,"akbankkk":39796,"kredi":43928,"house":0,"givenLiquidity":126155,"givenAsset":209923,"givenDebt":83721,"givenNet":126202,"legacyGold":0},{"date":"2024-04-09","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":63061,"akbank":30,"isbank":28211,"agesa":0,"allianz":90896,"qnbkk":360,"isbankkk":0,"akbankkk":26691,"kredi":38437,"house":0,"givenLiquidity":91302,"givenAsset":182198,"givenDebt":65488,"givenNet":116710,"legacyGold":0},{"date":"2024-04-25","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":48157,"akbank":4026,"isbank":28964,"agesa":0,"allianz":90780,"qnbkk":0,"isbankkk":0,"akbankkk":23751,"kredi":38437,"house":0,"givenLiquidity":81147,"givenAsset":171927,"givenDebt":62188,"givenNet":109739,"legacyGold":0},{"date":"2024-04-29","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":50351,"akbank":9,"isbank":30943,"agesa":0,"allianz":93164,"qnbkk":0,"isbankkk":0,"akbankkk":23751,"kredi":32946,"house":0,"givenLiquidity":81303,"givenAsset":174467,"givenDebt":56697,"givenNet":117770,"legacyGold":0},{"date":"2024-05-04","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":71761,"akbank":195,"isbank":31298,"agesa":0,"allianz":98653,"qnbkk":0,"isbankkk":0,"akbankkk":42568,"kredi":32946,"house":0,"givenLiquidity":103254,"givenAsset":201907,"givenDebt":75514,"givenNet":126393,"legacyGold":0},{"date":"2024-05-12","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":112416,"akbank":195,"isbank":2348,"agesa":0,"allianz":99447,"qnbkk":-1000,"isbankkk":0,"akbankkk":35942,"kredi":32946,"house":0,"givenLiquidity":114959,"givenAsset":214406,"givenDebt":67888,"givenNet":146518,"legacyGold":0},{"date":"2024-05-19","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":70991,"akbank":415,"isbank":437,"agesa":0,"allianz":100529,"qnbkk":-366,"isbankkk":0,"akbankkk":29941,"kredi":32946,"house":0,"givenLiquidity":71843,"givenAsset":172372,"givenDebt":62521,"givenNet":109851,"legacyGold":0},{"date":"2024-05-21","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":71124,"akbank":415,"isbank":474,"agesa":0,"allianz":103392,"qnbkk":-366,"isbankkk":0,"akbankkk":29941,"kredi":32946,"house":0,"givenLiquidity":72013,"givenAsset":175405,"givenDebt":62521,"givenNet":112884,"legacyGold":0},{"date":"2024-05-22","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":67604,"akbank":12,"isbank":521,"agesa":0,"allianz":103392,"qnbkk":-366,"isbankkk":0,"akbankkk":29189,"kredi":27455,"house":0,"givenLiquidity":68137,"givenAsset":171529,"givenDebt":56278,"givenNet":115251,"legacyGold":0},{"date":"2024-05-23","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":67739,"akbank":12,"isbank":572,"agesa":0,"allianz":103217,"qnbkk":-366,"isbankkk":0,"akbankkk":29189,"kredi":27455,"house":0,"givenLiquidity":68323,"givenAsset":171540,"givenDebt":56278,"givenNet":115262,"legacyGold":0},{"date":"2024-07-06","dollar":19608,"euro":3546,"quarter":0,"gram":0,"binance":0,"qnb":148,"akbank":9722,"isbank":52,"agesa":0,"allianz":111870,"qnbkk":267,"isbankkk":0,"akbankkk":5482,"kredi":27455,"house":0,"givenLiquidity":33076,"givenAsset":144946,"givenDebt":33204,"givenNet":111742,"legacyGold":0},{"date":"2024-07-08","dollar":19608,"euro":3546,"quarter":0,"gram":0,"binance":0,"qnb":0,"akbank":5563,"isbank":52,"agesa":0,"allianz":112159,"qnbkk":-31,"isbankkk":0,"akbankkk":5482,"kredi":27455,"house":0,"givenLiquidity":28769,"givenAsset":140928,"givenDebt":32906,"givenNet":108022,"legacyGold":0},{"date":"2024-08-29","dollar":20448,"euro":3782,"quarter":0,"gram":0,"binance":0,"qnb":58100,"akbank":1364,"isbank":52,"agesa":0,"allianz":110966,"qnbkk":646,"isbankkk":0,"akbankkk":5839,"kredi":16473,"house":0,"givenLiquidity":83746,"givenAsset":194712,"givenDebt":22958,"givenNet":171754,"legacyGold":0},{"date":"2024-09-17","dollar":20418,"euro":3791,"quarter":0,"gram":0,"binance":0,"qnb":38223,"akbank":901,"isbank":52,"agesa":0,"allianz":113768,"qnbkk":1,"isbankkk":0,"akbankkk":-300,"kredi":10982,"house":0,"givenLiquidity":63385,"givenAsset":177153,"givenDebt":10683,"givenNet":166470,"legacyGold":0},{"date":"2024-10-31","dollar":20550,"euro":3720,"quarter":0,"gram":0,"binance":0,"qnb":52245,"akbank":991,"isbank":52,"agesa":0,"allianz":115373,"qnbkk":-176,"isbankkk":0,"akbankkk":14761,"kredi":5365,"house":0,"givenLiquidity":77558,"givenAsset":192931,"givenDebt":19950,"givenNet":172981,"legacyGold":0},{"date":"2024-11-20","dollar":20706,"euro":3648,"quarter":0,"gram":0,"binance":0,"qnb":33482,"akbank":4903,"isbank":52,"agesa":0,"allianz":121261,"qnbkk":689,"isbankkk":0,"akbankkk":15000,"kredi":5366,"house":0,"givenLiquidity":62791,"givenAsset":184052,"givenDebt":21055,"givenNet":162997,"legacyGold":0},{"date":"2024-11-29","dollar":20814,"euro":3665,"quarter":0,"gram":0,"binance":0,"qnb":81719,"akbank":1216,"isbank":52,"agesa":0,"allianz":124774,"qnbkk":0,"isbankkk":0,"akbankkk":16570,"kredi":0,"house":0,"givenLiquidity":107466,"givenAsset":232240,"givenDebt":16570,"givenNet":215670,"legacyGold":0},{"date":"2024-12-06","dollar":20880,"euro":3685,"quarter":0,"gram":0,"binance":0,"qnb":67120,"akbank":0,"isbank":52,"agesa":0,"allianz":130605,"qnbkk":737,"isbankkk":0,"akbankkk":17074,"kredi":0,"house":0,"givenLiquidity":91737,"givenAsset":222342,"givenDebt":17811,"givenNet":204531,"legacyGold":0},{"date":"2025-01-06","dollar":21216,"euro":3661,"quarter":0,"gram":0,"binance":0,"qnb":80394,"akbank":5475,"isbank":52,"agesa":0,"allianz":137363,"qnbkk":331,"isbankkk":0,"akbankkk":650,"kredi":0,"house":0,"givenLiquidity":110798,"givenAsset":248161,"givenDebt":981,"givenNet":247180,"legacyGold":0},{"date":"2025-02-01","dollar":21462,"euro":3731,"quarter":0,"gram":0,"binance":0,"qnb":25161,"akbank":137415,"isbank":52,"agesa":0,"allianz":138633,"qnbkk":360,"isbankkk":0,"akbankkk":4379,"kredi":0,"house":0,"givenLiquidity":187821,"givenAsset":326454,"givenDebt":4739,"givenNet":321715,"legacyGold":0},{"date":"2025-03-12","dollar":21960,"euro":3988,"quarter":0,"gram":0,"binance":0,"qnb":2657429,"akbank":1924,"isbank":52,"agesa":5858,"allianz":152718,"qnbkk":0,"isbankkk":0,"akbankkk":1603,"kredi":0,"house":0,"givenLiquidity":2685353,"givenAsset":2843929,"givenDebt":1603,"givenNet":2842326,"legacyGold":0},{"date":"2025-04-18","dollar":22920,"euro":4324,"quarter":0,"gram":0,"binance":0,"qnb":41316,"akbank":0,"isbank":0,"agesa":12702,"allianz":151248,"qnbkk":0,"isbankkk":48702,"akbankkk":5264,"kredi":2564987,"house":3675000,"givenLiquidity":68560,"givenAsset":3907510,"givenDebt":2618953,"givenNet":1288557,"legacyGold":0},{"date":"2025-05-28","dollar":23442,"euro":4418,"quarter":0,"gram":0,"binance":0,"qnb":0,"akbank":987,"isbank":0,"agesa":20122,"allianz":158438,"qnbkk":1368,"isbankkk":30177,"akbankkk":31920,"kredi":2528861,"house":3675000,"givenLiquidity":28847,"givenAsset":3882407,"givenDebt":2592326,"givenNet":1290081,"legacyGold":0},{"date":"2025-07-22","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":6,"akbank":8082,"isbank":0,"agesa":36209,"allianz":188874,"qnbkk":988,"isbankkk":3377,"akbankkk":13496,"kredi":2457433,"house":3675000,"givenLiquidity":8088,"givenAsset":3908171,"givenDebt":2475294,"givenNet":1432877,"legacyGold":0},{"date":"2025-08-06","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":20071,"akbank":783,"isbank":0,"agesa":43632,"allianz":196625,"qnbkk":321,"isbankkk":2504,"akbankkk":7041,"kredi":2421284,"house":3675000,"givenLiquidity":20854,"givenAsset":3936111,"givenDebt":2431150,"givenNet":1504961,"legacyGold":0},{"date":"2025-09-09","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":41138,"akbank":648,"isbank":70,"agesa":53014,"allianz":195848,"qnbkk":-192,"isbankkk":1701,"akbankkk":14061,"kredi":2384354,"house":3675000,"givenLiquidity":41856,"givenAsset":3965718,"givenDebt":2399924,"givenNet":1565794,"legacyGold":0},{"date":"2025-09-30","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":65850,"akbank":1215,"isbank":6872.41,"agesa":56405,"allianz":211933,"qnbkk":386,"isbankkk":50784,"akbankkk":925,"kredi":2348228.35,"house":3675000,"givenLiquidity":73937.41,"givenAsset":4017275.41,"givenDebt":2400323.35,"givenNet":1616952.06,"legacyGold":0},{"date":"2025-10-13","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":114919,"akbank":2.86,"isbank":0,"agesa":66543,"allianz":215442,"qnbkk":-47.34,"isbankkk":-39,"akbankkk":10031,"kredi":2348228.35,"house":3675000,"givenLiquidity":114921.86,"givenAsset":4071906.86,"givenDebt":2358173.01,"givenNet":1713733.85,"legacyGold":0},{"date":"2025-10-21","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":113030,"akbank":2.86,"isbank":0,"agesa":70146.39,"allianz":211558,"qnbkk":-47.34,"isbankkk":-39,"akbankkk":13930,"kredi":2348228.35,"house":3675000,"givenLiquidity":113032.86,"givenAsset":4069737.25,"givenDebt":2362072.01,"givenNet":1707665.24,"legacyGold":0},{"date":"2025-10-31","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":144018,"akbank":1042,"isbank":73.41,"agesa":68505,"allianz":217457,"qnbkk":112.66,"isbankkk":1619,"akbankkk":14241,"kredi":2312101.76,"house":3675000,"givenLiquidity":145133.41,"givenAsset":4106095.41,"givenDebt":2328074.42,"givenNet":1778020.99,"legacyGold":0},{"date":"2025-11-13","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":129439,"akbank":0,"isbank":73.41,"agesa":75362,"allianz":217330,"qnbkk":798,"isbankkk":1619,"akbankkk":8239,"kredi":2312101.76,"house":3675000,"givenLiquidity":129512.41,"givenAsset":4097204.41,"givenDebt":2322757.76,"givenNet":1774446.65,"legacyGold":0},{"date":"2025-12-03","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":156563,"akbank":0,"isbank":0,"agesa":83425,"allianz":221912,"qnbkk":1295,"isbankkk":21500,"akbankkk":7819,"kredi":2275975.17,"house":3675000,"givenLiquidity":156563,"givenAsset":4136900,"givenDebt":2306589.17,"givenNet":1830310.83,"legacyGold":0},{"date":"2026-01-13","dollar":0,"euro":0,"quarter":0,"gram":0,"binance":0,"qnb":204361,"akbank":7,"isbank":7015,"agesa":97148,"allianz":253448,"qnbkk":1914,"isbankkk":27391,"akbankkk":46375,"kredi":2239848.58,"house":4000000,"givenLiquidity":211383,"givenAsset":4561979,"givenDebt":2315528.58,"givenNet":2246450.42,"legacyGold":0},{"date":"2026-01-23","dollar":0,"euro":0,"quarter":1,"gram":0,"binance":0,"qnb":178255,"akbank":7,"isbank":0,"agesa":104196,"allianz":268875,"qnbkk":728,"isbankkk":26122,"akbankkk":51400,"kredi":2239848.58,"house":4000000,"givenLiquidity":189687,"givenAsset":4562758,"givenDebt":2318098.58,"givenNet":2244659.42,"legacyGold":11425},{"date":"2026-02-19","dollar":0,"euro":0,"quarter":1,"gram":2,"binance":0,"qnb":195469,"akbank":0,"isbank":0,"agesa":120555,"allianz":293863,"qnbkk":699,"isbankkk":25645,"akbankkk":189652,"kredi":2203721.99,"house":4000000,"givenLiquidity":221140,"givenAsset":4635558,"givenDebt":2419717.99,"givenNet":2215840.01,"legacyGold":25671},{"date":"2026-04-03","dollar":0,"euro":0,"quarter":1,"gram":4,"binance":0,"qnb":199404,"akbank":1469,"isbank":32,"agesa":423914,"allianz":0,"qnbkk":1149,"isbankkk":14945,"akbankkk":169530,"kredi":2131468.81,"house":4000000,"givenLiquidity":240822,"givenAsset":4664736,"givenDebt":2317092.81,"givenNet":2347643.19,"legacyGold":39917},{"date":"2026-05-13","dollar":0,"euro":0,"quarter":1,"gram":4,"binance":0,"qnb":187552,"akbank":0,"isbank":1619,"agesa":489453,"allianz":0,"qnbkk":3164,"isbankkk":15702,"akbankkk":140197,"kredi":2095342.22,"house":4000000,"givenLiquidity":229088,"givenAsset":4718541,"givenDebt":2254405.22,"givenNet":2464135.78,"legacyGold":39917},{"date":"2026-06-25","dollar":0,"euro":0,"quarter":0,"gram":4,"binance":0,"qnb":184310,"akbank":75000,"isbank":0,"agesa":471760,"allianz":0,"qnbkk":0,"isbankkk":19689,"akbankkk":191142,"kredi":2059215.63,"house":4000000,"givenLiquidity":287802,"givenAsset":4759562,"givenDebt":2270046.63,"givenNet":2489515.37,"legacyGold":28492},{"date":"2026-07-28","dollar":0,"euro":0,"quarter":0,"gram":4,"binance":0,"qnb":0,"akbank":242366,"isbank":0,"agesa":501935,"allianz":0,"qnbkk":-303,"isbankkk":22033,"akbankkk":145883,"kredi":2023089.04,"house":4000000,"givenLiquidity":270858,"givenAsset":4772793,"givenDebt":2190702.04,"givenNet":2582090.96,"legacyGold":28492},{"date":"2026-08-24","dollar":0,"euro":0,"quarter":7,"gram":5,"binance":0,"qnb":227799,"akbank":0,"isbank":0,"agesa":544539,"allianz":0,"qnbkk":185,"isbankkk":146857,"akbankkk":139071,"kredi":1986962.45,"house":4800000,"givenLiquidity":343389,"givenAsset":5687928,"givenDebt":2273075.45,"givenNet":3414852.55,"legacyGold":115590}];
+const SEED_GOLD={"2026-01-23":{"quarterBuy":11365.811,"quarterSell":11597.766,"gramBuy":6781.14,"gramSell":6839.273,"source":"Altin.in"},"2026-02-19":{"quarterBuy":11657.404,"quarterSell":11895.31,"gramBuy":6955.112,"gramSell":7014.737,"source":"Altin.in"},"2026-04-03":{"quarterBuy":11117.856,"quarterSell":11344.751,"gramBuy":6633.203,"gramSell":6690.068,"source":"Altin.in"},"2026-05-13":{"quarterBuy":11433.54,"quarterSell":11666.878,"gramBuy":6821.549,"gramSell":6880.029,"source":"Altin.in"},"2026-06-25":{"quarterBuy":9938.676,"quarterSell":10141.506,"gramBuy":5929.674,"gramSell":5980.508,"source":"Altin.in"},"2026-07-28":{"quarterBuy":10313.543,"quarterSell":10524.024,"gramBuy":6153.329,"gramSell":6206.081,"source":"Altin.in"},"2026-08-24":{"quarterBuy":11815.152,"quarterSell":12056.278,"gramBuy":7049.228,"gramSell":7109.66,"source":"Altin.in"}};
+const STORE="pwo_user_records_v4",GOLDSTORE="pwo_gold_v1",SETTINGS="pwo_ai_v1",CFSTORE="pwo_cashflow_v1";
+function cloneSeed(){return JSON.parse(JSON.stringify(SEED_DATA))}
+function mergeRecords(){
+  let user=[]; try{user=JSON.parse(localStorage.getItem(STORE)||"[]")||[]}catch(e){}
+  const map=new Map(cloneSeed().map(r=>[r.date,r]));
+  user.forEach(r=>map.set(r.date,r));
+  return [...map.values()].sort((a,b)=>a.date.localeCompare(b.date));
+}
+let records=mergeRecords();
+let cashflows=[];try{cashflows=JSON.parse(localStorage.getItem(CFSTORE)||"[]")||[]}catch(e){}
+let goldCache=Object.assign({},SEED_GOLD,JSON.parse(localStorage.getItem(GOLDSTORE)||"{}"));
+let editing=null;
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)], n=v=>Number(v)||0, sum=a=>a.reduce((x,y)=>x+n(y),0);
+const fmt=v=>new Intl.NumberFormat("tr-TR",{style:"currency",currency:"TRY",maximumFractionDigits:0}).format(n(v));
+const num=v=>new Intl.NumberFormat("tr-TR",{maximumFractionDigits:1}).format(n(v));
+const pct=v=>(v>=0?"+":"")+num(v)+"%";
+const dtr=d=>new Date(d+"T12:00:00").toLocaleDateString("tr-TR",{day:"2-digit",month:"short",year:"2-digit"});
+const fullDate=d=>new Date(d+"T12:00:00").toLocaleDateString("tr-TR",{day:"numeric",month:"long",year:"numeric"});
+function save(){
+  const seedDates=new Set(SEED_DATA.map(r=>r.date));
+  const seedMap=new Map(SEED_DATA.map(r=>[r.date,JSON.stringify(r)]));
+  const user=records.filter(r=>!seedDates.has(r.date)||JSON.stringify(r)!==seedMap.get(r.date));
+  try{localStorage.setItem(STORE,JSON.stringify(user));localStorage.setItem(GOLDSTORE,JSON.stringify(goldCache));localStorage.setItem(CFSTORE,JSON.stringify(cashflows))}catch(e){}
+}
+function storageStats(){
+ const seedDates=new Set(SEED_DATA.map(r=>r.date));
+ const userDates=records.filter(r=>!seedDates.has(r.date)).length;
+ return {seed:SEED_DATA.length,user:userDates,total:records.length}
+}
+function sort(){records.sort((a,b)=>a.date.localeCompare(b.date))}
+function calc(r){
+ const cash=sum([r.dollar,r.euro,r.binance,r.qnb,r.akbank,r.isbank]),bes=n(r.agesa)+n(r.allianz),cards=n(r.qnbkk)+n(r.isbankkk)+n(r.akbankkk),debt=n(r.kredi)+cards;
+ const gp=goldCache[r.date]||{},mode=$("#goldMode")?.value||"buy",qp=n(mode==="buy"?gp.quarterBuy:gp.quarterSell),gpn=n(mode==="buy"?gp.gramBuy:gp.gramSell);
+ const gold=n(r.quarter)*qp+n(r.gram)*gpn,asset=cash+bes+n(r.house)+gold,net=asset-debt,financial=cash+bes+gold;
+ return{cash,bes,cards,debt,gold,asset,net,financial,gp}
+}
+function range(){
+ sort();const a=[...records];if(!a.length)return a;const rv=$("#range").value;if(rv==="all")return a;const m=parseInt(rv),last=new Date(a.at(-1).date+"T12:00:00"),cut=new Date(last);cut.setMonth(cut.getMonth()-m);return a.filter(r=>new Date(r.date+"T12:00:00")>=cut)
+}
+function nearestMonthsBack(months){
+ if(!records.length)return null;const last=records.at(-1),target=new Date(last.date+"T12:00:00");target.setMonth(target.getMonth()-months);
+ let best=records[0],bestDiff=Infinity;for(const r of records){const dt=new Date(r.date+"T12:00:00"),diff=Math.abs(dt-target);if(diff<bestDiff){best=r;bestDiff=diff}}return best
+}
+const dp=(a,b)=>b?((a-b)/Math.abs(b))*100:0;
+function deltaEl(id,a,b,inverse=false){const e=$(id),d=dp(a,b);e.textContent=`${pct(d)} vs önceki`;e.className="delta "+((inverse?d<=0:d>=0)?"up":"down")}
+function canvas(id){const c=$(id);if(!c||c.offsetParent===null)return null;const d=window.devicePixelRatio||1,r=c.getBoundingClientRect();c.width=Math.max(300,r.width*d);c.height=Math.max(180,r.height*d);const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);return{x,w:r.width,h:r.height}}
+const COL=["#72afd3","#c1a15f","#5fb596","#9a7bb7","#d07d7d","#7b8fa1","#d29d65"];
+function compact(v){v=n(v);if(Math.abs(v)>=1e6)return "₺"+(v/1e6).toFixed(1).replace(".",",")+"M";if(Math.abs(v)>=1e3)return "₺"+Math.round(v/1e3)+"K";return "₺"+Math.round(v)}
+function line(id,labels,series,zero=false){
+ const o=canvas(id);if(!o)return;const{x,w,h}=o,p={l:55,r:14,t:12,b:30},pw=w-p.l-p.r,ph=h-p.t-p.b,vals=series.flatMap(s=>s.v).filter(Number.isFinite);if(!vals.length)return;
+ let mn=zero?0:Math.min(...vals),mx=Math.max(...vals);if(mn===mx){mn*=.9;mx*=1.1}const span=(mx-mn)||1;mn=zero?0:mn-span*.07;mx+=span*.07;
+ x.font="9px Arial";x.fillStyle="#647a8e";x.strokeStyle="rgba(255,255,255,.06)";
+ for(let i=0;i<5;i++){const y=p.t+ph*i/4;x.beginPath();x.moveTo(p.l,y);x.lineTo(w-p.r,y);x.stroke();x.fillText(compact(mx-(mx-mn)*i/4),3,y+3)}
+ const st=Math.max(1,Math.ceil(labels.length/6));labels.forEach((l,i)=>{if(i%st&&i!==labels.length-1)return;const xx=p.l+(labels.length===1?pw/2:pw*i/(labels.length-1));x.fillText(l,xx-14,h-8)});
+ series.forEach((s,j)=>{x.strokeStyle=s.c||COL[j];x.lineWidth=s.width||2;x.beginPath();s.v.forEach((v,i)=>{const xx=p.l+(labels.length===1?pw/2:pw*i/(labels.length-1)),yy=p.t+(mx-v)/(mx-mn)*ph;i?x.lineTo(xx,yy):x.moveTo(xx,yy)});x.stroke()})
+}
+function bars(id,labels,series){
+ const o=canvas(id);if(!o)return;const{x,w,h}=o,p={l:55,r:12,t:12,b:30},pw=w-p.l-p.r,ph=h-p.t-p.b,vals=series.flatMap(s=>s.v),mn=Math.min(0,...vals),mx=Math.max(1,...vals),span=mx-mn;
+ x.font="9px Arial";x.strokeStyle="rgba(255,255,255,.06)";x.fillStyle="#647a8e";for(let i=0;i<5;i++){const y=p.t+ph*i/4;x.beginPath();x.moveTo(p.l,y);x.lineTo(w-p.r,y);x.stroke();x.fillText(compact(mx-span*i/4),3,y+3)}
+ const gw=pw/labels.length,bw=Math.max(2,Math.min(15,(gw-4)/series.length));labels.forEach((l,i)=>{series.forEach((s,j)=>{const v=s.v[i],zeroY=p.t+(mx-0)/span*ph,yy=p.t+(mx-v)/span*ph,xx=p.l+i*gw+gw/2-series.length*bw/2+j*bw;x.fillStyle=s.c||COL[j];x.fillRect(xx,Math.min(yy,zeroY),bw-2,Math.max(1,Math.abs(zeroY-yy)))});if(i%Math.max(1,Math.ceil(labels.length/6))===0||i===labels.length-1){x.fillStyle="#647a8e";x.fillText(l,p.l+i*gw+gw/2-14,h-8)}})
+}
+function donut(id,items){
+ const o=canvas(id);if(!o)return;const{x,w,h}=o,total=sum(items.map(i=>i.v)),cx=w*.43,cy=h*.48,r=Math.min(w,h)*.31,ri=r*.66;let a=-Math.PI/2;
+ items.forEach((it,i)=>{const q=total?it.v/total*Math.PI*2:0;x.beginPath();x.moveTo(cx,cy);x.arc(cx,cy,r,a,a+q);x.closePath();x.fillStyle=it.c||COL[i];x.fill();a+=q});x.beginPath();x.arc(cx,cy,ri,0,Math.PI*2);x.fillStyle="#0f1e2d";x.fill();x.textAlign="center";x.fillStyle="#edf3f8";x.font="700 18px Arial";x.fillText(compact(total),cx,cy);x.font="8px Arial";x.fillStyle="#6f8599";x.fillText("TOTAL",cx,cy+15);x.textAlign="left"
+}
+function metricHTML(rows){return rows.map(r=>`<div class="metric"><div><span>${r[0]}</span>${r[2]?`<small>${r[2]}</small>`:""}</div><b>${r[1]}</b></div>`).join("")}
+function render(){
+ sort();save();const rr=range();if(!rr.length)return;const L=records.at(-1),P=records.at(-2)||L,C=calc(L),PC=calc(P),B12=nearestMonthsBack(12),C12=calc(B12);
+ $("#heroNet").textContent=fmt(C.net);$("#heroDate").textContent=fullDate(L.date);$("#hero12m").textContent=pct(dp(C.net,C12.net));$("#heroDebtRatio").textContent=num(C.debt/C.asset*100)+"%";$("#heroFinancial").textContent=fmt(C.financial);
+ $("#heroBes").textContent=fmt(C.bes);$("#heroBesSub").textContent=`12 ayda ${pct(dp(C.bes,C12.bes))} · finansal varlıkların ${num(C.bes/C.financial*100)}%`;
+ $("#heroDebt").textContent=fmt(C.debt);$("#heroDebtSub").textContent=`Borç/varlık ${num(C.debt/C.asset*100)}% · nakit karşılama ${num(C.cash/C.debt*100)}%`;
+ $("#heroNarrative").textContent=`Servetin ${num(n(L.house)/C.asset*100)}%'i gayrimenkulde, ${num(C.financial/C.asset*100)}%'i finansal varlıklarda. Son kayda göre net servet ${pct(dp(C.net,PC.net))} değişti; BES bakiyesi ${fmt(C.bes)} seviyesinde.`;
+ [["#kAsset",C.asset,PC.asset],["#kDebt",C.debt,PC.debt,true],["#kCash",C.cash,PC.cash],["#kGold",C.gold,PC.gold],["#kBes",C.bes,PC.bes],["#kHouse",L.house,P.house]].forEach(([id,a,b,inv])=>{$(id).textContent=fmt(a);deltaEl(id.replace("#k","#d"),a,b,inv)});
+ const labs=rr.map(r=>dtr(r.date)),cc=rr.map(calc);
+ line("#netChart",labs,[{v:cc.map(c=>c.net),c:COL[0],width:2.5},{v:rr.map(r=>n(r.givenNet)),c:"#55697b",width:1.5}]);
+ const alloc=[["Ev",n(L.house),COL[0]],["Nakit",C.cash,COL[5]],["BES",C.bes,COL[2]],["Altın",C.gold,COL[1]]].filter(x=>x[1]>0).map(x=>({name:x[0],v:x[1],c:x[2]}));donut("#allocChart",alloc);
+ $("#allocLegend").innerHTML=alloc.map(x=>`<div class="metric"><span><i class="dot" style="color:${x.c}"></i>${x.name}</span><b>${num(x.v/C.asset*100)}%</b></div>`).join("");
+ bars("#balanceChart",labs,[{v:cc.map(c=>c.asset),c:COL[0]},{v:cc.map(c=>c.debt),c:"#6f5961"}]);
+ const st=storageStats();$("#dataStatusStrip").innerHTML=[
+ ["Tarihsel veri",st.seed+" kayıt"],["Yeni kullanıcı kaydı",st.user+" kayıt"],["Toplam ledger",st.total+" kayıt"],["İlk tarih",fullDate(records[0].date)],["Son tarih",fullDate(records.at(-1).date)]
+].map(x=>`<div><div class="l">${x[0]}</div><div class="v">${x[1]}</div></div>`).join("");
+renderHealth(L,C);renderNotes(L,C,P,PC);renderWealth(rr);renderBes(rr);renderCFO();renderCredit(rr);renderDebt(rr);renderData()
+}
+function renderHealth(L,C){
+ const rows=[
+ ["Borç / Varlık",num(C.debt/C.asset*100)+"%","Düşük oran daha güçlü bilanço"],
+ ["Nakit / Borç",num(C.cash/C.debt*100)+"%","Borcu karşılayabilen likit kaynak"],
+ ["Ev yoğunlaşması",num(n(L.house)/C.asset*100)+"%","Servetin gayrimenkul konsantrasyonu"],
+ ["Finansal varlık payı",num(C.financial/C.asset*100)+"%","Ev dışındaki taşınabilir sermaye"]
+ ];$("#health").innerHTML=rows.map(r=>`<div class="metric"><div><span>${r[0]}</span><div class="progress"><i style="width:${Math.min(100,Math.max(2,parseFloat(r[1])))}%"></i></div><small>${r[2]}</small></div><b>${r[1]}</b></div>`).join("")
+}
+function renderNotes(L,C,P,PC){
+ const out=[],nd=dp(C.net,PC.net),dd=dp(C.debt,PC.debt),bd=C.bes/C.debt*100,hs=n(L.house)/C.asset*100;
+ out.push(`<div class="insight ${nd>=0?"good":"risk"}"><strong>Servet momentumu:</strong> Son kayıtta ${pct(nd)}. Mutlak değişim ${fmt(C.net-PC.net)}.</div>`);
+ out.push(`<div class="insight ${dd<=0?"good":"warn"}"><strong>Borç trendi:</strong> ${pct(dd)}. BES bakiyesi toplam borcun ${num(bd)}%'ine ulaşıyor.</div>`);
+ out.push(`<div class="insight ${hs>75?"warn":"good"}"><strong>Konsantrasyon:</strong> Ev payı ${num(hs)}%. Finansal varlık havuzu ${fmt(C.financial)}.</div>`);
+ out.push(`<div class="insight"><strong>İzlenecek KPI:</strong> Borç/varlık, nakit/borç, BES/finansal varlık ve 12 aylık net servet büyümesi.</div>`);$("#notes").innerHTML=out.join("")
+}
+function renderWealth(rr){
+ const labs=rr.map(r=>dtr(r.date)),cc=rr.map(calc),L=rr.at(-1),C=cc.at(-1),F=rr[0],FC=cc[0];
+ line("#driversChart",labs,[{v:cc.map(c=>c.cash),c:COL[5]},{v:cc.map(c=>c.bes),c:COL[2]},{v:cc.map(c=>c.gold),c:COL[1]},{v:rr.map(r=>n(r.house)),c:COL[0]}]);
+ const mom=cc.map((c,i)=>i?c.net-cc[i-1].net:0);bars("#momentumChart",labs,[{v:mom,c:COL[0]}]);
+ const finShare=C.asset?C.financial/C.asset*100:0,houseShare=C.asset?n(L.house)/C.asset*100:0;
+ $("#financialMetrics").innerHTML=metricHTML([["Finansal varlıklar",fmt(C.financial),"Nakit + BES + altın"],["Finansal / toplam varlık",num(finShare)+"%","Taşınabilir sermaye oranı"],["Ev / toplam varlık",num(houseShare)+"%","Gayrimenkul yoğunluğu"],["Altın / finansal varlık",num(C.gold/C.financial*100)+"%","Fiziksel koruma payı"]]);
+ const yrs=Math.max(.01,(new Date(L.date)-new Date(F.date))/31557600000),cagr=FC.net>0&&C.net>0?(Math.pow(C.net/FC.net,1/yrs)-1)*100:0;
+ $("#period").innerHTML=metricHTML([["Başlangıç net",fmt(FC.net),fullDate(F.date)],["Son net",fmt(C.net),fullDate(L.date)],["Net değişim",pct(dp(C.net,FC.net)),"Seçili dönem"],["Yıllıklandırılmış",pct(cagr),"Basit CAGR"],["Borç değişimi",pct(dp(C.debt,FC.debt)),"Seçili dönem"]]);
+ $("#scenario").innerHTML=metricHTML([["Ev −10%",fmt(C.net-n(L.house)*.1),"Bilanço duyarlılığı"],["Altın −15%",fmt(C.net-C.gold*.15),"Bilanço duyarlılığı"],["Borç −10%",fmt(C.net+C.debt*.10),"Borç azaltım etkisi"],["Nakit +100K",fmt(C.net+100000),"Tasarruf etkisi"]])
+}
+function renderBes(rr){
+ const labs=rr.map(r=>dtr(r.date)),cc=rr.map(calc),L=records.at(-1),C=calc(L),B12=nearestMonthsBack(12),C12=calc(B12),peak=records.reduce((a,r)=>calc(r).bes>calc(a).bes?r:a,records[0]),peakC=calc(peak);
+ $("#besTotal").textContent=fmt(C.bes);$("#besNarrative").textContent=`AGESA ${fmt(L.agesa)} + Allianz ${fmt(L.allianz)}. Bu seri bakiye takibidir; katkı payı ve fon getirisi ayrı alanlarda olmadığı için performans getirisi olarak yorumlanmaz.`;
+ $("#bes12m").textContent=pct(dp(C.bes,C12.bes));$("#besNetShare").textContent=num(C.bes/C.asset*100)+"%";$("#besFinShare").textContent=num(C.bes/C.financial*100)+"%";$("#besPeak").textContent=fmt(peakC.bes);$("#besPeakDate").textContent=fullDate(peak.date);
+ line("#besMainChart",labs,[{v:rr.map(r=>n(r.agesa)),c:COL[2]},{v:rr.map(r=>n(r.allianz)),c:COL[4]},{v:cc.map(c=>c.bes),c:COL[0],width:2.5}],true);
+ const delta=cc.map((c,i)=>i?c.bes-cc[i-1].bes:0);bars("#besDeltaChart",labs,[{v:delta,c:COL[2]}]);
+ line("#besShareChart",labs,[{v:cc.map(c=>c.asset?c.bes/c.asset*100:0),c:COL[2]}],true);
+ line("#besDebtChart",labs,[{v:cc.map(c=>c.bes),c:COL[2]},{v:cc.map(c=>c.debt),c:COL[4]}],true);
+ const firstBes=records.find(r=>calc(r).bes>0)||records[0],fb=calc(firstBes),yrs=Math.max(.01,(new Date(L.date)-new Date(firstBes.date))/31557600000),cagr=fb.bes>0?(Math.pow(C.bes/fb.bes,1/yrs)-1)*100:0;
+ $("#besMetrics").innerHTML=metricHTML([
+  ["AGESA payı",C.bes?num(n(L.agesa)/C.bes*100)+"%":"—","Son BES toplamı içindeki pay"],
+  ["Allianz payı",C.bes?num(n(L.allianz)/C.bes*100)+"%":"—","Son BES toplamı içindeki pay"],
+  ["İlk pozitif BES",fmt(fb.bes),fullDate(firstBes.date)],
+  ["Bakiye CAGR",pct(cagr),"Katkı + değer değişimi birlikte"],
+  ["BES / borç",num(C.bes/C.debt*100)+"%","Uzun vadeli varlık / yükümlülük"]
+ ]);
+ const byYear={};records.forEach(r=>{byYear[r.date.slice(0,4)]=r});const years=Object.keys(byYear).sort();let prev=null,max=Math.max(...years.map(y=>calc(byYear[y]).bes),1);
+ $("#besYearly").innerHTML=years.map(y=>{const c=calc(byYear[y]),chg=prev?dp(c.bes,prev):0,html=`<div class="wf-row"><span>${y} yıl sonu</span><div class="wf-bar"><i style="width:${c.bes/max*100}%"></i></div><b>${fmt(c.bes)} ${prev?`<small style="color:${chg>=0?"#5fb596":"#d47777"}">${pct(chg)}</small>`:""}</b></div>`;prev=c.bes;return html}).join("")
+}
+
+
+let editingCash=null;
+function cfCalc(r){
+ const income=n(r.salary)+n(r.extra), debtService=n(r.loan)+n(r.card), allocation=n(r.bes)+n(r.invest);
+ const freeCash=income-n(r.living)-debtService-allocation;
+ const economicSaving=income-n(r.living)-debtService;
+ return {income,debtService,allocation,freeCash,economicSaving}
+}
+function renderCFO(){
+ const cf=[...cashflows].sort((a,b)=>a.month.localeCompare(b.month)), L=cf.at(-1), C=L?cfCalc(L):null;
+ if(!L){
+  $("#cfoSavings").textContent="Veri bekleniyor";$("#cfoSaveRate").textContent="—";$("#cfoDebtService").textContent="—";$("#cfoInvest").textContent="—";$("#cfoMonths").textContent="0";$("#cfoIncome").textContent="—";$("#cfoExpense").textContent="—";
+  $("#cfoMetrics").innerHTML='<div class="insight warn"><strong>İlk adım:</strong> “Aylık CFO kaydı” ile maaş, yaşam gideri, borç ödemeleri, BES katkısı ve yatırım transferlerini ekle.</div>';
+  $("#cfoBridge").innerHTML='<div class="insight">Nakit akışı verisi geldikçe aylık tasarruf ile net servet değişimi karşılaştırılacak.</div>';
+  $("#cfoNotes").innerHTML='<div class="insight">Bu modül bilanço verisinden ayrı tutulur; böylece BES artışı veya yatırım transferi “harcama” ile karıştırılmaz.</div>';
+  $("#cashflowBody").innerHTML="";return
+ }
+ $("#cfoSavings").textContent=fmt(C.economicSaving);$("#cfoSaveRate").textContent=num(C.income?C.economicSaving/C.income*100:0)+"%";$("#cfoDebtService").textContent=fmt(C.debtService);$("#cfoInvest").textContent=fmt(C.allocation);$("#cfoMonths").textContent=cf.length;$("#cfoIncome").textContent=fmt(C.income);$("#cfoExpense").textContent=fmt(L.living);
+ const labs=cf.map(r=>r.month),cc=cf.map(cfCalc);
+ bars("#cfoFlowChart",labs,[{v:cc.map(c=>c.income),c:COL[0]},{v:cf.map(r=>n(r.living)),c:COL[4]},{v:cc.map(c=>c.economicSaving),c:COL[2]}]);
+ bars("#cfoAllocChart",labs,[{v:cf.map(r=>n(r.bes)),c:COL[2]},{v:cf.map(r=>n(r.invest)),c:COL[1]},{v:cc.map(c=>c.debtService),c:COL[4]}]);
+ const last6=cc.slice(-6),avg=a=>a.length?sum(a)/a.length:0;
+ $("#cfoMetrics").innerHTML=metricHTML([
+  ["Tasarruf oranı",num(C.income?C.economicSaving/C.income*100:0)+"%","Borç servisi sonrası ekonomik tasarruf"],
+  ["Yaşam gideri / gelir",num(C.income?n(L.living)/C.income*100:0)+"%","Son ay"],
+  ["Borç servisi / gelir",num(C.income?C.debtService/C.income*100:0)+"%","Kredi + kart ödemeleri"],
+  ["Sermaye tahsisi / gelir",num(C.income?C.allocation/C.income*100:0)+"%","BES + yatırım"],
+  ["6A ort. ekonomik tasarruf",fmt(avg(last6.map(c=>c.economicSaving))),"Mevcut kayıtlarla"]
+ ]);
+ const wealthLast=records.at(-1),wealthPrev=records.at(-2),wd=calc(wealthLast).net-calc(wealthPrev).net;
+ $("#cfoBridge").innerHTML=metricHTML([
+  ["Son CFO ekonomik tasarruf",fmt(C.economicSaving),"Gelir − yaşam − borç servisi"],
+  ["Son bilanço net değişimi",fmt(wd),"Son iki servet kaydı arasında"],
+  ["Fark",fmt(wd-C.economicSaving),"Piyasa/değerleme/zamanlama etkileri içerebilir"],
+  ["BES + yatırım transferi",fmt(C.allocation),"Nakit çıkışı → varlığa dönüşüm"]
+ ]);
+ const sr=C.income?C.economicSaving/C.income*100:0,ds=C.income?C.debtService/C.income*100:0,lr=C.income?n(L.living)/C.income*100:0;
+ const notes=[];
+ notes.push(`<div class="insight ${sr>=20?"good":"warn"}"><strong>Tasarruf kapasitesi:</strong> Son ay ekonomik tasarruf oranı ${num(sr)}%. ${sr>=20?"Sermaye birikimi için güçlü alan korunuyor.":"Oranı yükseltmek için yaşam gideri ve borç servisi birlikte izlenmeli."}</div>`);
+ notes.push(`<div class="insight ${ds<=25?"good":"warn"}"><strong>Borç servisi:</strong> Gelirin ${num(ds)}%'i kredi/kart ödemelerine gidiyor.</div>`);
+ notes.push(`<div class="insight ${lr<=55?"good":"warn"}"><strong>Yaşam gideri:</strong> Gelirin ${num(lr)}%'i operasyonel yaşam giderlerinde.</div>`);
+ notes.push(`<div class="insight"><strong>Sermaye tahsisi:</strong> Son ay BES + diğer yatırımlara ${fmt(C.allocation)} yönlendirilmiş.</div>`);
+ $("#cfoNotes").innerHTML=notes.join("");
+ $("#cashflowBody").innerHTML=[...cf].reverse().map((r,ri)=>{const c=cfCalc(r),idx=cashflows.findIndex(x=>x.month===r.month);return`<tr><td>${r.month}</td><td>${fmt(r.salary)}</td><td>${fmt(r.extra)}</td><td>${fmt(r.living)}</td><td>${fmt(r.loan)}</td><td>${fmt(r.card)}</td><td>${fmt(r.bes)}</td><td>${fmt(r.invest)}</td><td><b>${fmt(c.economicSaving)}</b></td><td><button class="btn cfedit" data-i="${idx}" style="padding:5px 7px">Düzenle</button></td></tr>`}).join("");
+ $$(".cfedit").forEach(b=>b.onclick=()=>openCash(+b.dataset.i))
+}
+function openCash(i=null){
+ editingCash=i;const r=i===null?{}:cashflows[i];$("#cashTitle").textContent=i===null?"Aylık CFO kaydı":"CFO kaydını düzenle";
+ ["month","salary","extra","living","loan","card","bes","invest","note"].forEach(k=>$("#cf_"+k).value=r[k]??"");
+ if(i===null){const d=new Date();$("#cf_month").value=d.toISOString().slice(0,7)}openModal("cashModal")
+}
+
+function renderCredit(rr){
+ const labs=rr.map(r=>dtr(r.date)), cc=rr.map(calc), L=records.at(-1), C=calc(L), P=records.at(-2)||L, PC=calc(P);
+ const first=records[0], FC=calc(first), B12=nearestMonthsBack(12), C12=calc(B12);
+
+ // Top strip
+ const qnb=n(L.qnbkk), isb=n(L.isbankkk), akb=n(L.akbankkk);
+ $("#creditStrip").innerHTML=[
+   ["Toplam finansal borç",fmt(C.debt)],
+   ["Kredi bakiyesi",fmt(L.kredi)],
+   ["Toplam kart borcu",fmt(C.cards)],
+   ["Kart / toplam borç",num(C.debt?C.cards/C.debt*100:0)+"%"],
+   ["12A borç değişimi",pct(dp(C.debt,C12.debt))]
+ ].map(x=>`<div><div class="l">${x[0]}</div><div class="v">${x[1]}</div></div>`).join("");
+
+ // Main liability trend
+ line("#creditMainChart",labs,[
+   {v:rr.map(r=>n(r.kredi)),c:COL[0]},
+   {v:cc.map(c=>c.cards),c:COL[6]},
+   {v:cc.map(c=>c.debt),c:COL[4],width:2.6}
+ ],true);
+
+ // Card-level trend
+ line("#cardsTrendChart",labs,[
+   {v:rr.map(r=>n(r.qnbkk)),c:COL[0]},
+   {v:rr.map(r=>n(r.isbankkk)),c:COL[2]},
+   {v:rr.map(r=>n(r.akbankkk)),c:COL[3]}
+ ],true);
+
+ // Mix donuts
+ const mix=[
+   ["Kredi",n(L.kredi),COL[0]],
+   ["QNB KK",qnb,COL[4]],
+   ["İşbank KK",isb,COL[6]],
+   ["Akbank KK",akb,COL[3]]
+ ].filter(x=>x[1]>0).map(x=>({name:x[0],v:x[1],c:x[2]}));
+ donut("#creditMixChart",mix);
+
+ const cardMix=[
+   ["QNB KK",qnb,COL[4]],
+   ["İşbank KK",isb,COL[6]],
+   ["Akbank KK",akb,COL[3]]
+ ].filter(x=>x[1]>0).map(x=>({name:x[0],v:x[1],c:x[2]}));
+ donut("#cardsMixChart",cardMix);
+
+ // Change chart
+ const delta=cc.map((c,i)=>i?c.debt-cc[i-1].debt:0);
+ bars("#creditDeltaChart",labs,[{v:delta,c:COL[4]}]);
+
+ // Metrics
+ const cardLeader=[["QNB KK",qnb],["İşbank KK",isb],["Akbank KK",akb]].sort((a,b)=>b[1]-a[1])[0];
+ const debtChange=dp(C.debt,PC.debt), debt12=dp(C.debt,C12.debt);
+ const paidDown=FC.debt?((FC.debt-C.debt)/FC.debt*100):0;
+ $("#creditMetrics").innerHTML=metricHTML([
+   ["Kredi payı",num(C.debt?n(L.kredi)/C.debt*100:0)+"%","Toplam finansal borç içindeki ağırlık"],
+   ["Kart payı",num(C.debt?C.cards/C.debt*100:0)+"%","Revolving borç yoğunluğu"],
+   ["En yüksek kart borcu",cardLeader?`${cardLeader[0]} · ${fmt(cardLeader[1])}`:"—","Son kayıt"],
+   ["Son kayıt borç değişimi",pct(debtChange),`Önceki kayda göre ${fmt(C.debt-PC.debt)}`],
+   ["12 aylık borç değişimi",pct(debt12),"Yaklaşık 12 ay önceki en yakın kayıt"],
+   ["İlk kayda göre azaltım",pct(paidDown),"Pozitif değer borç stokunda azalış"]
+ ]);
+
+ const creditToCards=C.cards?n(L.kredi)/C.cards:0;
+ $("#creditBalanceMetrics").innerHTML=metricHTML([
+   ["Kredi bakiyesi",fmt(L.kredi),`Toplam borcun ${num(C.debt?n(L.kredi)/C.debt*100:0)}%`],
+   ["Kart borcu",fmt(C.cards),`Toplam borcun ${num(C.debt?C.cards/C.debt*100:0)}%`],
+   ["Kredi / kart oranı",creditToCards?num(creditToCards)+"x":"—","Borç yapısının vade karakteri"],
+   ["Kart / nakit",num(C.cash?C.cards/C.cash*100:0)+"%","Nakit likiditeye kıyasla kart borcu"],
+   ["Kart / BES",num(C.bes?C.cards/C.bes*100:0)+"%","Kart borcunun uzun vadeli birikime oranı"],
+   ["Borç / net servet",num(C.net?C.debt/C.net*100:0)+"%","Finansal kaldıraç göstergesi"]
+ ]);
+}
+
+function renderDebt(rr){
+ const labs=rr.map(r=>dtr(r.date)),cc=rr.map(calc),L=records.at(-1),C=calc(L),F=records[0],FC=calc(F);
+ line("#debtChart",labs,[{v:rr.map(r=>n(r.kredi)),c:COL[4]},{v:cc.map(c=>c.cards),c:COL[6]},{v:cc.map(c=>c.debt),c:COL[0],width:2.5}],true);
+ line("#liquidityDebtChart",labs,[{v:cc.map(c=>c.cash),c:COL[2]},{v:cc.map(c=>c.debt),c:COL[4]}],true);
+ const debtItems=[["Kredi",n(L.kredi),COL[0]],["QNB KK",n(L.qnbkk),COL[4]],["İşbank KK",n(L.isbankkk),COL[6]],["Akbank KK",n(L.akbankkk),COL[3]]].filter(x=>x[1]>0).map(x=>({name:x[0],v:x[1],c:x[2]}));donut("#debtAllocChart",debtItems);
+ $("#debtStrip").innerHTML=[
+  ["Toplam borç",fmt(C.debt)],["Kredi",fmt(L.kredi)],["Kart borcu",fmt(C.cards)],["Borç / varlık",num(C.debt/C.asset*100)+"%"],["Nakit / borç",num(C.cash/C.debt*100)+"%"]
+ ].map(x=>`<div><div class="l">${x[0]}</div><div class="v">${x[1]}</div></div>`).join("");
+ const reduction=FC.debt?((FC.debt-C.debt)/FC.debt*100):0;
+ $("#debtProgress").innerHTML=metricHTML([["İlk borç",fmt(FC.debt),fullDate(F.date)],["Son borç",fmt(C.debt),fullDate(L.date)],["Borç azalış oranı",pct(reduction),"Pozitif = azalma"],["Mutlak değişim",fmt(C.debt-FC.debt),"İlk kayda göre"]]);
+ $("#liquidityMetrics").innerHTML=metricHTML([["Nakit likidite",fmt(C.cash),"Banka + döviz TL + Binance"],["Nakit / borç",num(C.cash/C.debt*100)+"%","Kısa vadeli tampon"],["Nakit + altın",fmt(C.cash+C.gold),"Likide yakın kaynak"],["BES dahil finansal",fmt(C.financial),"Uzun vadeli sermaye dahil"]])
+}
+function qa(r){
+ const c=calc(r),legacyGold=n(r.legacyGold),legacyL=c.cash+legacyGold,legacyA=legacyL+c.bes+n(r.house),legacyN=legacyA-c.debt,t=.51;
+ const checks=[Math.abs(n(r.givenLiquidity)-legacyL)<=t,Math.abs(n(r.givenAsset)-legacyA)<=t,Math.abs(n(r.givenDebt)-c.debt)<=t,Math.abs(n(r.givenNet)-legacyN)<=t];return checks.every(Boolean)
+}
+function renderData(){
+ const bad=records.filter(r=>!qa(r)).length,goldRows=records.filter(r=>n(r.quarter)+n(r.gram)>0).length,cached=records.filter(r=>(n(r.quarter)+n(r.gram)>0)&&goldCache[r.date]).length;
+ $("#qa").innerHTML=metricHTML([["Toplam kayıt",String(records.length),"Master ledger"],["Formül uyuşmazlığı",String(bad),"Eski toplamlarla kontrol"],["Altın içeren kayıt",String(goldRows),"Tarihsel değerleme gerekli"],["Altın fiyatı bulunan",`${cached}/${goldRows}`,"Cache / online arşiv"]]);
+ $("#tbody").innerHTML=[...records].reverse().map((r,ri)=>{const i=records.length-1-ri,c=calc(r),ok=qa(r);return`<tr class="${ok?"":"bad"}" data-i="${i}"><td>${fullDate(r.date)}</td><td>${fmt(c.cash)}</td><td>${fmt(c.bes)}</td><td>${fmt(r.house)}</td><td>${fmt(c.gold)}</td><td>${fmt(c.asset)}</td><td>${fmt(r.kredi)}</td><td>${fmt(c.cards)}</td><td>${fmt(c.debt)}</td><td><b>${fmt(c.net)}</b></td><td><span class="badge ${ok?"green":"gold"}">${ok?"OK":"Kontrol"}</span></td><td><button class="btn edit" data-i="${i}" style="padding:5px 7px">Düzenle</button></td></tr>`}).join("");
+ $$(".edit").forEach(b=>b.onclick=e=>{e.stopPropagation();openRecord(+b.dataset.i)});$$("#tbody tr").forEach(tr=>tr.ondblclick=()=>openRecord(+tr.dataset.i))
+}
+function switchPage(p){
+ $$(".page").forEach(x=>x.classList.remove("active"));$("#"+p).classList.add("active");$$("[data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===p));
+ const titles={executive:"Executive Overview",wealth:"Servet Analizi",bes:"BES Intelligence",cfo:"Personal CFO",credit:"Kredi & Kredi Kartları",debt:"Likidite & Borç",data:"Veri & AI"};$("#pageTitle").textContent=titles[p];setTimeout(render,30)
+}
+$$("[data-page]").forEach(b=>b.onclick=()=>switchPage(b.dataset.page));
+function openModal(id){$("#"+id).classList.add("show")}function closeModal(id){$("#"+id).classList.remove("show")}$$("[data-close]").forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
+function openRecord(i=null){
+ editing=i;const r=i===null?{}:records[i];$("#recordTitle").textContent=i===null?"Yeni finans kaydı":"Kaydı düzenle";
+ ["date","dollar","euro","binance","qnb","akbank","isbank","house","agesa","allianz","quarter","gram","qnbkk","isbankkk","akbankkk","kredi","note"].forEach(k=>$("#f_"+k).value=r[k]??"");
+ if(i===null)$("#f_date").value=new Date().toISOString().slice(0,10);const gp=goldCache[r.date]||{};$("#f_qbuy").value=gp.quarterBuy??"";$("#f_qsell").value=gp.quarterSell??"";$("#f_gbuy").value=gp.gramBuy??"";$("#f_gsell").value=gp.gramSell??"";openModal("recordModal")
+}
+$("#addBtn").onclick=()=>openRecord();$("#addBtn2").onclick=()=>openRecord();$("#sideAdd").onclick=()=>openRecord();
+async function fetchGold(date){
+ const[y,m,d]=date.split("-"),res=await fetch(`https://r.jina.ai/https://altin.in/arsiv/${y}/${m}/${d}`,{cache:"no-store"});if(!res.ok)throw Error("Arşiv isteği başarısız");const t=await res.text();
+ function prices(label){const i=t.indexOf(label);if(i<0)return null;const s=t.slice(i,i+900),a=[];for(const ln of s.split("\n")){const c=ln.replace(/^[\s*\-]+/,"").trim().replace(/,/g,".");if(/^\d{4,6}\.\d{3,4}$/.test(c))a.push(+c);if(a.length>=2)break}return a.length>=2?a:null}
+ const q=prices("Çeyrek Altın"),g=prices("Gram Altın");if(!q||!g)throw Error("Fiyat ayrıştırılamadı");goldCache[date]={quarterBuy:q[0],quarterSell:q[1],gramBuy:g[0],gramSell:g[1],source:"Altin.in / online"};save();return goldCache[date]
+}
+$("#saveRecord").onclick=async()=>{
+ const ks=["date","dollar","euro","binance","qnb","akbank","isbank","house","agesa","allianz","quarter","gram","qnbkk","isbankkk","akbankkk","kredi","note"],r={};ks.forEach(k=>r[k]=k==="date"||k==="note"?$("#f_"+k).value:n($("#f_"+k).value));if(!r.date)return alert("Tarih gerekli.");
+ const man={quarterBuy:n($("#f_qbuy").value),quarterSell:n($("#f_qsell").value),gramBuy:n($("#f_gbuy").value),gramSell:n($("#f_gsell").value)};if((man.quarterBuy||man.gramBuy)&&(man.quarterSell||man.gramSell))goldCache[r.date]={...man,source:"Manuel"};
+ if((r.quarter+r.gram)>0&&!goldCache[r.date]){try{$("#goldFetchNote").textContent="Tarihsel altın fiyatı aranıyor…";await fetchGold(r.date)}catch(e){$("#goldFetchNote").textContent="Otomatik fiyat bulunamadı. Fiyatı manuel girip tekrar kaydet.";return}}
+ const gp=goldCache[r.date]||{},mode=$("#goldMode").value,goldNow=r.quarter*n(mode==="buy"?gp.quarterBuy:gp.quarterSell)+r.gram*n(mode==="buy"?gp.gramBuy:gp.gramSell),cash=sum([r.dollar,r.euro,r.binance,r.qnb,r.akbank,r.isbank]),bes=r.agesa+r.allianz,cards=r.qnbkk+r.isbankkk+r.akbankkk,debt=r.kredi+cards,liq=cash+goldNow,asset=liq+bes+r.house;
+ r.legacyGold=goldNow;r.givenLiquidity=liq;r.givenAsset=asset;r.givenDebt=debt;r.givenNet=asset-debt;
+ if(editing===null){const ex=records.findIndex(x=>x.date===r.date);ex>=0?records[ex]=r:records.push(r)}else records[editing]=r;save();closeModal("recordModal");render()
+};
+$("#refreshGold").onclick=async()=>{let ok=0,fail=0;for(const r of records.filter(r=>n(r.quarter)+n(r.gram)>0)){try{await fetchGold(r.date);ok++}catch(e){fail++}}render();alert(`Altın fiyatları: ${ok} güncellendi, ${fail} başarısız.`)};
+$("#range").onchange=render;$("#goldMode").onchange=render;window.addEventListener("resize",()=>{clearTimeout(window.rt);window.rt=setTimeout(render,120)});
+function download(name,txt,type){const b=new Blob([txt],{type}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+$("#exportJson").onclick=()=>download("private_wealth_backup.json",JSON.stringify({version:4,exportedAt:new Date().toISOString(),records,goldCache,cashflows},null,2),"application/json");
+$("#sideExport").onclick=$("#exportJson").onclick;
+$("#importJson").onclick=()=>$("#importFile").click();
+$("#importFile").onchange=async e=>{
+ const f=e.target.files?.[0];if(!f)return;
+ try{
+  const j=JSON.parse(await f.text());
+  if(!Array.isArray(j.records))throw Error("records dizisi bulunamadı");
+  const map=new Map(cloneSeed().map(r=>[r.date,r]));j.records.forEach(r=>map.set(r.date,r));records=[...map.values()].sort((a,b)=>a.date.localeCompare(b.date));
+  if(j.goldCache)goldCache=Object.assign({},SEED_GOLD,j.goldCache);
+  if(Array.isArray(j.cashflows))cashflows=j.cashflows;
+  save();render();alert(`Yedek içe aktarıldı. ${records.length} finans kaydı ve ${cashflows.length} CFO ayı yüklendi.`);
+ }catch(err){alert("Yedek okunamadı: "+err.message)}
+ e.target.value="";
+};
+$("#exportCsv").onclick=()=>{const h=["Tarih","Nakit","BES","Ev","Altın","Varlık","Kredi","Kartlar","Borç","Net"],lines=[h.join(";")];records.forEach(r=>{const c=calc(r);lines.push([r.date,c.cash,c.bes,r.house,c.gold,c.asset,r.kredi,c.cards,c.debt,c.net].map(v=>String(v).replace(".",",")).join(";"))});download("private_wealth_ledger.csv","\ufeff"+lines.join("\n"),"text/csv;charset=utf-8")};
+$("#addCashflow").onclick=()=>openCash();
+$("#saveCash").onclick=()=>{
+ const r={month:$("#cf_month").value,salary:n($("#cf_salary").value),extra:n($("#cf_extra").value),living:n($("#cf_living").value),loan:n($("#cf_loan").value),card:n($("#cf_card").value),bes:n($("#cf_bes").value),invest:n($("#cf_invest").value),note:$("#cf_note").value};
+ if(!r.month)return alert("Ay gerekli.");
+ if(editingCash===null){const ex=cashflows.findIndex(x=>x.month===r.month);ex>=0?cashflows[ex]=r:cashflows.push(r)}else cashflows[editingCash]=r;
+ cashflows.sort((a,b)=>a.month.localeCompare(b.month));save();closeModal("cashModal");render()
+};
+$("#settingsBtn").onclick=()=>{const s=JSON.parse(localStorage.getItem(SETTINGS)||"{}");$("#apiKey").value=s.key||"";$("#apiModel").value=s.model||"gemini-3.1-flash-lite";openModal("settingsModal")};
+$("#saveSettings").onclick=()=>{localStorage.setItem(SETTINGS,JSON.stringify({key:$("#apiKey").value.trim(),model:$("#apiModel").value}));closeModal("settingsModal")};
+function aiSummary(){const L=records.at(-1),C=calc(L),P=records.at(-2),PC=calc(P),B12=nearestMonthsBack(12),C12=calc(B12);return`Tarih: ${L.date}
+Net servet: ${Math.round(C.net)} TL
+12 aylık net değişim: ${pct(dp(C.net,C12.net))}
+Toplam varlık: ${Math.round(C.asset)} TL
+Toplam borç: ${Math.round(C.debt)} TL
+Borç/varlık: ${num(C.debt/C.asset*100)}%
+Nakit: ${Math.round(C.cash)} TL
+Altın: ${Math.round(C.gold)} TL
+BES: ${Math.round(C.bes)} TL
+AGESA: ${Math.round(n(L.agesa))} TL
+Allianz: ${Math.round(n(L.allianz))} TL
+BES 12 aylık bakiye değişimi: ${pct(dp(C.bes,C12.bes))}
+Ev: ${Math.round(n(L.house))} TL
+Finansal varlık: ${Math.round(C.financial)} TL
+Son kayda göre net değişim: ${pct(dp(C.net,PC.net))}`}
+$("#copySummary").onclick=async()=>{await navigator.clipboard.writeText(aiSummary());$("#copySummary").textContent="Kopyalandı";setTimeout(()=>$("#copySummary").textContent="Özeti kopyala",1100)};
+$("#runAi").onclick=async()=>{const s=JSON.parse(localStorage.getItem(SETTINGS)||"{}");if(!s.key){$("#aiOutput").textContent="Önce AI ayarlarından Gemini API anahtarı ekle.";return}$("#aiOutput").textContent="Analiz hazırlanıyor…";const prompt=`Kıdemli ama ihtiyatlı bir kişisel finans analisti gibi davran. Aşağıdaki bilanço özetini değerlendir. Türkçe yaz. Yönetici özeti formatında en fazla 7 madde üret. Özellikle: net servet momentumu, borç azaltma hızı, likidite tamponu, BES büyümesi, gayrimenkul konsantrasyonu, izlenecek 3 KPI. BES artışını yatırım getirisi diye adlandırma; katkı ve fon getirisi ayrıştırılmıyor. Al-sat emri verme. Son cümlede yatırım danışmanlığı olmadığını belirt.\n\n${aiSummary()}`;try{const model=s.model||"gemini-3.1-flash-lite",res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":s.key},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})}),j=await res.json();if(!res.ok)throw Error(j?.error?.message||"API hatası");$("#aiOutput").textContent=j?.candidates?.[0]?.content?.parts?.map(x=>x.text||"").join("")||"Yanıt alınamadı"}catch(e){$("#aiOutput").textContent="AI isteği başarısız: "+e.message}};
+
+let deferredInstallPrompt=null;
+window.addEventListener("beforeinstallprompt",e=>{
+  e.preventDefault(); deferredInstallPrompt=e;
+  const b=document.querySelector("#installPwa"); if(b)b.style.display="";
+});
+document.querySelector("#installPwa")?.addEventListener("click",async()=>{
+  if(deferredInstallPrompt){deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null}
+  else alert("iPhone: Safari > Paylaş > Ana Ekrana Ekle. Android/Chrome: tarayıcı menüsünden Uygulamayı yükle.");
+});
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(console.error));
+}
+
+render();
+</script>
+</body>
+</html>
